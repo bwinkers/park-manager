@@ -217,7 +217,6 @@ function triggerUpload() {
 }
 
 async function uploadDatabase(event) {
-  const q = useQuasar()
   const file = event?.target?.files?.[0]
   if (!file) return
 
