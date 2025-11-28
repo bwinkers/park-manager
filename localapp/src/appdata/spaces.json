@@ -1,0 +1,890 @@
+{
+    "A1": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A2": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A3": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "A4": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A5": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A6": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "A7": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A8": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A9": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "A10": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A11": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A12": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "A13": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A14": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "A15": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "B2": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B3": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B4": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B5": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B6": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B7": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B8": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B9": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B10": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B11": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B12": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B13": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "B14": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C0": {
+        "type": "garage",
+        "length": 0,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "C1": {
+        "type": "doublewide",
+        "length": 0,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C2": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C3": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C4": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C5": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C6": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C7": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C8": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C9": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C10": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C11": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C12": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C13": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "C14": {
+        "type": "overnight",
+        "length": 40,
+        "electric": 30,
+        "metered": false,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D1": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D2": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D3": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "D4": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D5": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D6": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "D7": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D8": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D9": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "D10": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D11": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D12": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "D13": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D14": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D15": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "D16": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D17": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "D18": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "D19": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "E1": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "E2": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "E3": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "E4": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "E7": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "E10": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "E12": {
+        "type": "storage",
+        "length": 40,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "E13": {
+        "type": "storage",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "E14": {
+        "type": "storage",
+        "length": 40,
+        "electric": 0,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "E15": {
+        "type": "storage",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "F1": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "F2": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "F3": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "F4": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "F5": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "F6": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "F7": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "F8": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "G1": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "G2": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "G3": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "G4": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "G5": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "G6": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "G7": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "G8": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "H1": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "H2": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "H3": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "H4": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "H5": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "H6": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "H7": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "H8": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "H9": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "H10": {
+        "type": "monthly",
+        "length": 30,
+        "electric": 30,
+        "metered": true,
+        "hasWater": true,
+        "hasSewer": true
+    },
+    "P0": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P1": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P2": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P3": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P4": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P5": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P6": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P7": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P8": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P9": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P10": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P11": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    },
+    "P12": {
+        "type": "parking",
+        "length": 40,
+        "electric": 0,
+        "metered": false,
+        "hasWater": false,
+        "hasSewer": false
+    }
+}

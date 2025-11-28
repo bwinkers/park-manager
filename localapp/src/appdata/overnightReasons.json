@@ -1,0 +1,30 @@
+[
+    {
+        "label": "Repeat",
+        "value": "R"
+    },
+    {
+        "label": "Internet",
+        "value": "Net"
+    },
+    {
+        "label": "Elks Club",
+        "value": "Elks"
+    },
+    {
+        "label": "Friend",
+        "value": "F"
+    },
+    {
+        "label": "Directory",
+        "value": "D"
+    },
+    {
+        "label": "GPS",
+        "value": "GPS"
+    },
+    {
+        "label": "Other",
+        "value": "O"
+    }
+]

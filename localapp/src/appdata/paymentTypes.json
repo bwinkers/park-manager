@@ -1,0 +1,30 @@
+[
+    {
+        "label": "Cash",
+        "value": "C"
+    },
+    {
+        "label": "Credit Card",
+        "value": "CC"
+    },
+    {
+        "label": "Check",
+        "value": "CK"
+    },
+    {
+        "label": "Money Order",
+        "value": "MO"
+    },
+    {
+        "label": "Travelers Check",
+        "value": "TC"
+    },
+    {
+        "label": "GPS",
+        "value": "GPS"
+    },
+    {
+        "label": "Other",
+        "value": "O"
+    }
+]

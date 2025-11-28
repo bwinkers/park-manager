@@ -1,0 +1,18 @@
+[
+    {
+        "label": "Travel Trailer",
+        "value": "TTR"
+    },
+    {
+        "label": "Van/Tent Trailer",
+        "value": "TT"
+    },
+    {
+        "label": "Mobile Home",
+        "value": "MH"
+    },
+    {
+        "label": "5th Wheel",
+        "value": "5W"
+    }
+]

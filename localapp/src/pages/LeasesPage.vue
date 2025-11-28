@@ -1,0 +1,12 @@
+<template>
+  <q-page class="flex flex-center">
+    <div>
+      <h1>Leases Page</h1>
+      <p>This is the Leases management page.</p>
+    </div>
+  </q-page>
+</template>
+
+<script setup>
+//
+</script>
