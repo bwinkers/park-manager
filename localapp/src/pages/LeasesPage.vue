@@ -15,7 +15,3 @@ onMounted(async () => {
     </div>
   </q-page>
 </template>
-
-<script setup>
-//
-</script>
