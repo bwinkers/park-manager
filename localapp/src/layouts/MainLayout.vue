@@ -54,6 +54,14 @@ import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import EssentialLink from 'components/EssentialLink.vue'
 import { db } from 'src/boot/dexie'
+import { useSpacesStore } from 'src/stores/spacesStore'
+import { useTenantsStore } from 'src/stores/tenantsStore'
+import { usePaymentsStore } from 'src/stores/paymentsStore'
+import { useReservationsStore } from 'src/stores/reservationsStore'
+import { useWaitListStore } from 'src/stores/waitListStore'
+import { useLeasesStore } from 'src/stores/leasesStore'
+import { useDepositsStore } from 'src/stores/depositsStore'
+import { useMeterReadingsStore } from 'src/stores/meterReadingsStore'
 
 const q = useQuasar()
 
@@ -188,12 +196,11 @@ async function downloadDatabase() {
   try {
     q.loading.show({ message: 'Exporting database...' })
     const data = {}
-    // Export all tables
-    const tables = ['tenants', 'spaces', 'leases', 'parkBillings', 'rentPayments', 'overnightPayments', 'otherPayments', 'meterReadings', 'deposits', 'pettyCash', 'waitList', 'reservations']
-    for (const tableName of tables) {
-      if (db[tableName]) {
-        data[tableName] = await db[tableName].toArray()
-      }
+    // Export all tables dynamically from Dexie instance
+    const tableNames = db.tables.map(t => t.name)
+    for (const tableName of tableNames) {
+      // toArray exports records for each table
+      data[tableName] = await db.table(tableName).toArray()
     }
     const json = JSON.stringify(data, null, 2)
     const blob = new Blob([json], { type: 'application/json' })
@@ -230,12 +237,63 @@ async function uploadDatabase(event) {
       q.loading.show({ message: 'Importing database...' })
       const text = await file.text()
       const data = JSON.parse(text)
-      // Clear existing data and import
+      // Clear existing data and import with light sanitization for auto-increment keys
+      const tableNames = db.tables.map(t => t.name)
       for (const tableName of Object.keys(data)) {
-        if (db[tableName]) {
-          await db[tableName].clear()
-          await db[tableName].bulkAdd(data[tableName])
+        if (!tableNames.includes(tableName)) continue
+
+        const table = db.table(tableName)
+        const schema = table.schema
+        const pk = schema?.primKey
+
+        await table.clear()
+
+        let rows = Array.isArray(data[tableName]) ? data[tableName] : []
+        if (rows.length && pk && pk.auto && typeof pk.keyPath === 'string') {
+          const key = pk.keyPath
+          rows = rows.map((r) => {
+            if (!r || !(key in r)) return r
+            let v = r[key]
+            if (v === null || v === undefined || v === '') {
+              const rest = { ...r }
+              delete rest[key]
+              return rest
+            }
+            if (typeof v === 'string' && /^\d+$/.test(v)) {
+              return { ...r, [key]: Number(v) }
+            }
+            return r
+          })
         }
+
+        if (rows.length) {
+          await table.bulkAdd(rows)
+        }
+      }
+      // Refresh Pinia stores after import so UI reflects new data
+      try {
+        const spacesStore = useSpacesStore()
+        const tenantsStore = useTenantsStore()
+        const paymentsStore = usePaymentsStore()
+        const reservationsStore = useReservationsStore()
+        const waitListStore = useWaitListStore()
+        const leasesStore = useLeasesStore()
+        const depositsStore = useDepositsStore()
+        const meterReadingsStore = useMeterReadingsStore()
+        spacesStore.init && spacesStore.init()
+        tenantsStore.init && tenantsStore.init()
+        await Promise.all([
+          spacesStore.fetchSpaces?.(),
+          tenantsStore.fetchTenants?.(),
+          paymentsStore.fetchAll?.(),
+          reservationsStore.fetchReservations?.(),
+          waitListStore.fetchWaitList?.(),
+          leasesStore.fetchAll?.(),
+          depositsStore.fetchAll?.(),
+          meterReadingsStore.fetchAll?.(),
+        ])
+      } catch (refreshErr) {
+        console.warn('Store refresh after import encountered an issue:', refreshErr)
       }
       q.notify({ type: 'positive', message: 'Database imported successfully', position: 'top' })
       // Reset file input

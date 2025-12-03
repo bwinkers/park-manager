@@ -26,7 +26,9 @@ export const useWaitListStore = defineStore('waitList', () => {
 
   const addEntry = async (payload) => {
     try {
-      await db.waitList.add(payload)
+      const row = { ...(payload || {}) }
+      if ('id' in row) delete row.id
+      await db.waitList.add(row)
       await fetchWaitList()
     } catch (err) {
       console.error('Failed to add wait list entry:', err)

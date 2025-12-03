@@ -1,3 +1,4 @@
+<!-- Removed duplicate script setup to keep a single block below -->
 <template>
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
@@ -86,101 +87,113 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
-import { db } from 'src/boot/dexie'
-import { liveQuery } from 'dexie'
-import { useObservable } from '@vueuse/rxjs'
-import { useRoute } from 'vue-router'
+import { useSpacesStore } from 'src/stores/spacesStore'
+import { useTenantsStore } from 'src/stores/tenantsStore'
 
 const $q = useQuasar()
-const search = ref('')
-const editingTenant = ref(null)
 const route = useRoute()
+const router = useRouter()
+
+const spacesStore = useSpacesStore()
+const tenantsStore = useTenantsStore()
 const formContainer = ref(null)
 
-const form = reactive({
+const search = ref('')
+const selectedTenantId = ref(null)
+const form = ref({
+  id: null,
   firstName: '',
   lastName: '',
   phone: '',
   email: '',
-  autocharge: false,
   active: true,
-  notes: ''
+  autocharge: false,
+  notes: '',
 })
 
-// Load tenants from Dexie
-const tenants = useObservable(
-  liveQuery(() => db.tenants.toArray())
-)
+const editingTenant = computed(() => !!form.value.id)
 
-// Load spaces reactively and compute those linked to the current tenant
-const allSpaces = useObservable(
-  liveQuery(() => db.spaces.toArray())
-)
-
-const relatedSpaces = computed(() => {
-  if (!editingTenant.value) return []
-  const tid = editingTenant.value.id
-  return (allSpaces.value || []).filter(s => String(s.tenantId) === String(tid))
-})
-
-// Filter tenants based on search
 const filteredTenants = computed(() => {
-  if (!tenants.value) return []
-  if (!search.value) return tenants.value
-  const searchLower = search.value.toLowerCase()
-  return tenants.value.filter(t =>
-    t.firstName?.toLowerCase().includes(searchLower) ||
-    t.lastName?.toLowerCase().includes(searchLower) ||
-    t.phone?.toLowerCase().includes(searchLower) ||
-    t.email?.toLowerCase().includes(searchLower)
+  const q = search.value.trim().toLowerCase()
+  const list = tenantsStore.sortedTenants || []
+  if (!q) return list
+  return list.filter(t =>
+    [t.firstName, t.lastName, t.email, t.phone, t.notes]
+      .filter(Boolean)
+      .some(f => String(f).toLowerCase().includes(q))
   )
 })
 
-async function saveTenant() {
-  if (!form.lastName) {
-    $q.notify({ type: 'warning', message: 'Last name is required', position: 'top' })
-    return
-  }
+const relatedSpaces = computed(() => {
+  if (!selectedTenantId.value) return []
+  return (spacesStore.sortedSpaces || []).filter(s => s.tenantId === selectedTenantId.value)
+})
 
-  try {
-    const tenant = {
-      firstName: form.firstName,
-      lastName: form.lastName,
-      phone: form.phone || '',
-      email: form.email || '',
-      autocharge: form.autocharge || false,
-      active: form.active === false ? false : true,
-      notes: form.notes || ''
+const loadTenantFromQuery = async () => {
+  // Support both ?tenantId= and ?id= for deep links
+  const { tenantId, id } = route.query
+  const qid = tenantId ?? id
+  if (qid) {
+    selectedTenantId.value = Number(Array.isArray(qid) ? qid[0] : qid)
+    const t = await tenantsStore.getTenantById(selectedTenantId.value)
+    if (t) {
+      form.value = { ...t }
     }
-
-    if (editingTenant.value) {
-      // Update existing tenant
-      await db.tenants.update(editingTenant.value.id, tenant)
-      $q.notify({ type: 'positive', message: 'Tenant updated', position: 'top' })
-    } else {
-      // Add new tenant
-      await db.tenants.add(tenant)
-      $q.notify({ type: 'positive', message: 'Tenant added', position: 'top' })
-    }
-
-    resetForm()
-  } catch (err) {
-    console.error('Save tenant failed:', err)
-    $q.notify({ type: 'negative', message: 'Failed to save tenant: ' + err.message, position: 'top' })
   }
 }
 
-function editTenant(tenant) {
-  editingTenant.value = tenant
-  form.firstName = tenant.firstName || ''
-  form.lastName = tenant.lastName || ''
-  form.phone = tenant.phone || ''
-  form.email = tenant.email || ''
-  form.autocharge = tenant.autocharge || false
-  form.active = tenant.active === false ? false : true
-  form.notes = tenant.notes || ''
+const resetForm = () => {
+  form.value = {
+    id: null,
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    active: true,
+    autocharge: false,
+    notes: '',
+  }
+}
+
+const saveTenant = async () => {
+  try {
+    const payload = { ...form.value }
+    if (payload.id) {
+      const { id, ...changes } = payload
+      await tenantsStore.updateTenant(id, changes)
+      $q.notify({ type: 'positive', message: 'Tenant updated' })
+    } else {
+      await tenantsStore.addTenant(payload)
+      $q.notify({ type: 'positive', message: 'Tenant added' })
+    }
+    resetForm()
+    await router.replace({ query: {} })
+  } catch (err) {
+    console.error(err)
+    $q.notify({ type: 'negative', message: 'Failed to save tenant' })
+  }
+}
+
+const deleteTenant = async (tenant) => {
+  try {
+    await tenantsStore.deleteTenant(tenant.id)
+    $q.notify({ type: 'warning', message: 'Tenant deleted' })
+    if (selectedTenantId.value === tenant.id) {
+      resetForm()
+      selectedTenantId.value = null
+    }
+  } catch (err) {
+    console.error(err)
+    $q.notify({ type: 'negative', message: 'Failed to delete tenant' })
+  }
+}
+
+const editTenant = (tenant) => {
+  selectedTenantId.value = tenant.id
+  form.value = { ...tenant }
   nextTick(() => {
     if (formContainer.value && typeof formContainer.value.scrollIntoView === 'function') {
       formContainer.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -188,67 +201,24 @@ function editTenant(tenant) {
   })
 }
 
-function cancelEdit() {
+const cancelEdit = () => {
+  selectedTenantId.value = null
   resetForm()
 }
 
-function resetForm() {
-  editingTenant.value = null
-  form.firstName = ''
-  form.lastName = ''
-  form.phone = ''
-  form.email = ''
-  form.autocharge = false
-  form.active = true
-  form.notes = ''
-}
-
-function deleteTenant(tenant) {
-  const q = useQuasar()
-  q.dialog({
-    title: 'Confirm Delete',
-    message: `Delete tenant ${tenant.firstName} ${tenant.lastName}?`,
-    cancel: true,
-    persistent: true
-  }).onOk(async () => {
-    try {
-      await db.tenants.delete(tenant.id)
-      q.notify({ type: 'positive', message: 'Tenant deleted', position: 'top' })
-      if (editingTenant.value?.id === tenant.id) {
-        resetForm()
-      }
-    } catch (err) {
-      console.error('Delete tenant failed:', err)
-      q.notify({ type: 'negative', message: 'Failed to delete tenant: ' + err.message, position: 'top' })
-    }
-  })
-}
-
-// Load a specific tenant by id from the URL query (?id=TENANTID)
-async function loadTenantFromQuery() {
-  const qid = route.query.id
-  if (!qid) return
-  const tenantId = Array.isArray(qid) ? qid[0] : qid
-  try {
-    let tenant = tenants.value?.find(t => String(t.id) === String(tenantId))
-    if (!tenant) {
-      tenant = await db.tenants.get(Number(tenantId))
-    }
-    if (tenant) {
-      editTenant(tenant)
-    } else {
-      $q.notify({ type: 'warning', message: `Tenant not found: ${tenantId}`, position: 'top' })
-    }
-  } catch (err) {
-    console.error('Failed to load tenant from query:', err)
-  }
-}
-
-onMounted(() => {
-  loadTenantFromQuery()
+onMounted(async () => {
+  spacesStore.init()
+  tenantsStore.init()
+  await tenantsStore.fetchTenants()
+  await loadTenantFromQuery()
 })
 
-watch(() => route.query.id, () => {
-  loadTenantFromQuery()
+watch(() => route.query, loadTenantFromQuery)
+
+onUnmounted(() => {
+  spacesStore.dispose && spacesStore.dispose()
+  tenantsStore.dispose && tenantsStore.dispose()
 })
+
 </script>
+<!-- cleaned trailing legacy script -->

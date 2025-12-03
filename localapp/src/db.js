@@ -57,6 +57,87 @@ db.version(24).stores({
     if (s.tenantId === undefined) s.tenantId = null;
   });
 });
+// Version 25 adds weeklyRental boolean to spaces and defaults to false for existing rows
+db.version(25).stores({
+  tenants: '++id, firstName, lastName, phone, autocharge, email, active, notes',
+  spaces: 'id, tenantId, type, length, electric, metered, hasWater, hasSewer, weeklyRental, notes',
+  leases: '++id, tenantId, spaceId, startDate, endDate, rentalType, rate, isDelinquent, notes',
+  parkBillings: '++id, month, year, spaceId, utility, rent, storage, lateCharge, miscFees, deposit, climateCredit, amount, notes',
+  rentPayments: '++id, spaceId, paymentDate, amount, paymentType, notes, billedElectric, billedRent, trash, storage, miscFees, lateCharge, moveInDeposit, climateCredit',
+  overnightPayments: '++id, ticketNumber, firstName, lastName, licensePlate, streetAddress, streetAddress2, city, state, zip, numInParty, reason, rvType, checkInDate, checkOutDate, paymentDate, amountCollected, paymentType, notes',
+  otherPayments: '++id, spaceId, name, paymentDate, amount, qty, paymentType, reason, notes',
+  meterReadings: '++id, spaceId, readingDate, readingValue, adjustedReading, notes',
+  deposits: '++id, cash, itemsTotal, total, date, notes',
+  pettyCash: '++id, amount, disbursedDate, paidTo, submittedBy, paidFor, receiptDate, disbursedBy, isCredit, notes',
+  waitList: '$$id, name, phone, email, rvType, rvLength, rvYear, backgroundCheck, desiredStartDate, dateAdded, notes, status',
+  reservations: '$$id, name, phone, email, rvType, numInParty, checkInDate, checkOutDate, notes',
+  maintenanceRequests: '++id, spaceId, parkArea, requestDate, description, status, completedDate, pettyCashTransactions, imgIds, notes',
+}).upgrade(tx => {
+  return tx.table('spaces').toCollection().modify(s => {
+    if (s.weeklyRental === undefined) s.weeklyRental = false;
+  });
+});
+// Version 26 replaces weeklyRental with weeklyRate (whole dollars), defaulting to null
+db.version(26).stores({
+  tenants: '++id, firstName, lastName, phone, autocharge, email, active, notes',
+  spaces: 'id, tenantId, type, length, electric, metered, hasWater, hasSewer, weeklyRate, notes',
+  leases: '++id, tenantId, spaceId, startDate, endDate, rentalType, rate, isDelinquent, notes',
+  parkBillings: '++id, month, year, spaceId, utility, rent, storage, lateCharge, miscFees, deposit, climateCredit, amount, notes',
+  rentPayments: '++id, spaceId, paymentDate, amount, paymentType, notes, billedElectric, billedRent, trash, storage, miscFees, lateCharge, moveInDeposit, climateCredit',
+  overnightPayments: '++id, ticketNumber, firstName, lastName, licensePlate, streetAddress, streetAddress2, city, state, zip, numInParty, reason, rvType, checkInDate, checkOutDate, paymentDate, amountCollected, paymentType, notes',
+  otherPayments: '++id, spaceId, name, paymentDate, amount, qty, paymentType, reason, notes',
+  meterReadings: '++id, spaceId, readingDate, readingValue, adjustedReading, notes',
+  deposits: '++id, cash, itemsTotal, total, date, notes',
+  pettyCash: '++id, amount, disbursedDate, paidTo, submittedBy, paidFor, receiptDate, disbursedBy, isCredit, notes',
+  waitList: '$$id, name, phone, email, rvType, rvLength, rvYear, backgroundCheck, desiredStartDate, dateAdded, notes, status',
+  reservations: '$$id, name, phone, email, rvType, numInParty, checkInDate, checkOutDate, notes',
+  maintenanceRequests: '++id, spaceId, parkArea, requestDate, description, status, completedDate, pettyCashTransactions, imgIds, notes',
+}).upgrade(tx => {
+  return tx.table('spaces').toCollection().modify(s => {
+    if (s.weeklyRate === undefined) s.weeklyRate = null;
+    if (Object.prototype.hasOwnProperty.call(s, 'weeklyRental')) delete s.weeklyRental;
+  });
+});
+// Version 27 adds storageRate (whole dollars), defaulting to null
+db.version(27).stores({
+  tenants: '++id, firstName, lastName, phone, autocharge, email, active, notes',
+  spaces: 'id, tenantId, type, length, electric, metered, hasWater, hasSewer, weeklyRate, storageRate, notes',
+  leases: '++id, tenantId, spaceId, startDate, endDate, rentalType, rate, isDelinquent, notes',
+  parkBillings: '++id, month, year, spaceId, utility, rent, storage, lateCharge, miscFees, deposit, climateCredit, amount, notes',
+  rentPayments: '++id, spaceId, paymentDate, amount, paymentType, notes, billedElectric, billedRent, trash, storage, miscFees, lateCharge, moveInDeposit, climateCredit',
+  overnightPayments: '++id, ticketNumber, firstName, lastName, licensePlate, streetAddress, streetAddress2, city, state, zip, numInParty, reason, rvType, checkInDate, checkOutDate, paymentDate, amountCollected, paymentType, notes',
+  otherPayments: '++id, spaceId, name, paymentDate, amount, qty, paymentType, reason, notes',
+  meterReadings: '++id, spaceId, readingDate, readingValue, adjustedReading, notes',
+  deposits: '++id, cash, itemsTotal, total, date, notes',
+  pettyCash: '++id, amount, disbursedDate, paidTo, submittedBy, paidFor, receiptDate, disbursedBy, isCredit, notes',
+  waitList: '$$id, name, phone, email, rvType, rvLength, rvYear, backgroundCheck, desiredStartDate, dateAdded, notes, status',
+  reservations: '$$id, name, phone, email, rvType, numInParty, checkInDate, checkOutDate, notes',
+  maintenanceRequests: '++id, spaceId, parkArea, requestDate, description, status, completedDate, pettyCashTransactions, imgIds, notes',
+}).upgrade(tx => {
+  return tx.table('spaces').toCollection().modify(s => {
+    if (s.storageRate === undefined) s.storageRate = null;
+  });
+});
+// Version 28 adds monthlyRate (whole dollars), defaulting to null
+db.version(28).stores({
+  tenants: '++id, firstName, lastName, phone, autocharge, email, active, notes',
+  spaces: 'id, tenantId, type, length, electric, metered, hasWater, hasSewer, weeklyRate, storageRate, monthlyRate, notes',
+  leases: '++id, tenantId, spaceId, startDate, endDate, rentalType, rate, isDelinquent, notes',
+  parkBillings: '++id, month, year, spaceId, utility, rent, storage, lateCharge, miscFees, deposit, climateCredit, amount, notes',
+  rentPayments: '++id, spaceId, paymentDate, amount, paymentType, notes, billedElectric, billedRent, trash, storage, miscFees, lateCharge, moveInDeposit, climateCredit',
+  overnightPayments: '++id, ticketNumber, firstName, lastName, licensePlate, streetAddress, streetAddress2, city, state, zip, numInParty, reason, rvType, checkInDate, checkOutDate, paymentDate, amountCollected, paymentType, notes',
+  otherPayments: '++id, spaceId, name, paymentDate, amount, qty, paymentType, reason, notes',
+  meterReadings: '++id, spaceId, readingDate, readingValue, adjustedReading, notes',
+  deposits: '++id, cash, itemsTotal, total, date, notes',
+  pettyCash: '++id, amount, disbursedDate, paidTo, submittedBy, paidFor, receiptDate, disbursedBy, isCredit, notes',
+  waitList: '$$id, name, phone, email, rvType, rvLength, rvYear, backgroundCheck, desiredStartDate, dateAdded, notes, status',
+  reservations: '$$id, name, phone, email, rvType, numInParty, checkInDate, checkOutDate, notes',
+  maintenanceRequests: '++id, spaceId, parkArea, requestDate, description, status, completedDate, pettyCashTransactions, imgIds, notes',
+}).upgrade(tx => {
+  return tx.table('spaces').toCollection().modify(s => {
+    if (s.monthlyRate === undefined) s.monthlyRate = null;
+  });
+});
 db.open().catch((err) => {
   console.error('Failed to open db: ' + (err.stack || err));
 });

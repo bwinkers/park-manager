@@ -31,7 +31,9 @@ export const useReservationsStore = defineStore('reservations', () => {
 
   const addReservation = async (reservation) => {
     try {
-      await db.reservations.add(reservation)
+      const row = { ...(reservation || {}) }
+      if ('id' in row) delete row.id
+      await db.reservations.add(row)
       await fetchReservations()
     } catch (err) {
       console.error('Failed to add reservation:', err)

@@ -22,6 +22,12 @@
               <q-checkbox v-model="form.metered" label="Metered" dense />
               <q-checkbox v-model="form.hasWater" label="Has Water" dense />
               <q-checkbox v-model="form.hasSewer" label="Has Sewer" dense />
+              <q-input v-model.number="form.weeklyRate" label="Weekly Rate ($)" type="number" dense outlined :step="1"
+                :min="0" />
+              <q-input v-model.number="form.storageRate" label="Storage Rate ($)" type="number" dense outlined :step="1"
+                :min="0" />
+              <q-input v-model.number="form.monthlyRate" label="Monthly Rate ($)" type="number" dense outlined :step="1"
+                :min="0" />
               <q-input v-model="form.notes" label="Notes" type="textarea" dense outlined rows="3" />
               <div class="row justify-end q-gutter-sm">
                 <q-btn v-if="editingSpace" label="Cancel" color="grey" flat @click="cancelEdit" />
@@ -49,9 +55,18 @@
           <q-list bordered separator>
             <q-item v-for="space in filteredSpaces" :key="space.id">
               <q-item-section>
-                <q-item-label class="text-bold">{{ space.id }}<span v-if="space.tenantId && tenantMap[space.tenantId]">
+                <q-item-label class="text-bold">{{ space.id }}
+                  <span v-if="space.tenantId && tenantMap[space.tenantId]">
                     — <router-link :to="{ name: 'tenants', query: { id: tenantMap[space.tenantId].id } }">{{
-                      tenantMap[space.tenantId].lastName }}</router-link></span></q-item-label>
+                      tenantMap[space.tenantId].lastName }}</router-link>
+                  </span>
+                  <span v-if="space.weeklyRate && space.weeklyRate > 0" class="text-caption"> — ${{ space.weeklyRate
+                  }}/week</span>
+                  <span v-if="space.storageRate && space.storageRate > 0" class="text-caption"> — ${{ space.storageRate
+                  }}/month (storage)</span>
+                  <span v-if="space.monthlyRate && space.monthlyRate > 0" class="text-caption"> — ${{ space.monthlyRate
+                  }}/month</span>
+                </q-item-label>
                 <q-item-label caption>
                   <div>Type: {{ space.type }}</div>
                   <div v-if="space.length">Length: {{ space.length }}ft</div>
@@ -90,9 +105,9 @@
 <script setup>
 import { reactive, ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useQuasar } from 'quasar'
-import { db } from 'src/boot/dexie'
-import { liveQuery } from 'dexie'
-import { useObservable } from '@vueuse/rxjs'
+// db import not needed now; using stores
+import { useSpacesStore } from 'src/stores/spacesStore'
+import { useTenantsStore } from 'src/stores/tenantsStore'
 import { useRoute } from 'vue-router'
 
 const $q = useQuasar()
@@ -112,34 +127,37 @@ const typeOptions = [
 
 const electricOptions = [
   { label: 'None', value: 0 },
-  { label: '30amp', value: 30 }
+  { label: '30amp', value: 30 },
+  { label: '35amp', value: 35 }
 ]
 
 const form = reactive({
   id: '',
-  type: '',
+  type: 'monthly',
   tenantId: '',
-  length: null,
-  electric: null,
-  metered: false,
-  hasWater: false,
-  hasSewer: false,
+  length: 35,
+  electric: 35,
+  metered: true,
+  hasWater: true,
+  hasSewer: true,
+  weeklyRate: null,
+  storageRate: null,
+  monthlyRate: null,
   notes: ''
 })
 
-// Load spaces from Dexie
-const spaces = useObservable(
-  liveQuery(() => db.spaces.toArray())
-)
+// Load spaces via Pinia store
+const spacesStore = useSpacesStore()
+spacesStore.init()
 
-// Load active tenants for assignment
-const tenants = useObservable(
-  liveQuery(() => db.tenants.toArray())
-)
+// Load active tenants via Pinia store
+const tenantsStore = useTenantsStore()
+tenantsStore.init()
 
 const tenantOptions = computed(() => {
-  if (!tenants.value) return []
-  return tenants.value
+  const list = tenantsStore.sortedTenants || []
+  if (!list.length) return []
+  return list
     .filter(t => t.active !== false) // treat undefined or true as active
     .map(t => ({
       label: (t.firstName ? (t.firstName + ' ') : '') + t.lastName,
@@ -151,8 +169,8 @@ const tenantOptions = computed(() => {
 // Map for quick tenant lookup by id
 const tenantMap = computed(() => {
   const map = {}
-  if (tenants.value) {
-    for (const t of tenants.value) {
+  if (tenantsStore.tenants && tenantsStore.tenants.length) {
+    for (const t of tenantsStore.tenants) {
       map[t.id] = t
     }
   }
@@ -161,10 +179,11 @@ const tenantMap = computed(() => {
 
 // Filter spaces based on search
 const filteredSpaces = computed(() => {
-  if (!spaces.value) return []
-  if (!search.value) return spaces.value
+  const list = spacesStore.sortedSpaces
+  if (!list || !list.length) return []
+  if (!search.value) return list
   const searchLower = search.value.toLowerCase()
-  return spaces.value.filter(s =>
+  return list.filter(s =>
     s.id?.toLowerCase().includes(searchLower) ||
     s.type?.toLowerCase().includes(searchLower) ||
     s.notes?.toLowerCase().includes(searchLower)
@@ -179,24 +198,27 @@ async function saveSpace() {
 
   try {
     const space = {
-      id: form.id,
+      id: (form.id || '').toString().trim().toUpperCase(),
       type: form.type,
-      tenantId: form.tenantId || null,
+        tenantId: (form.tenantId !== '' && form.tenantId != null) ? Number(form.tenantId) : null,
       length: form.length || 0,
       electric: form.electric || 0,
       metered: form.metered || false,
       hasWater: form.hasWater || false,
       hasSewer: form.hasSewer || false,
+      weeklyRate: (Number.isFinite(form.weeklyRate) ? Math.round(form.weeklyRate) : null),
+      storageRate: (Number.isFinite(form.storageRate) ? Math.round(form.storageRate) : null),
+      monthlyRate: (Number.isFinite(form.monthlyRate) ? Math.round(form.monthlyRate) : null),
       notes: form.notes || ''
     }
 
     if (editingSpace.value) {
       // Update existing space
-      await db.spaces.update(space.id, space)
+      await spacesStore.updateSpace(space.id, space)
       $q.notify({ type: 'positive', message: 'Space updated', position: 'top' })
     } else {
       // Add new space
-      await db.spaces.put(space)
+      await spacesStore.putSpace(space)
       $q.notify({ type: 'positive', message: 'Space added', position: 'top' })
     }
 
@@ -209,7 +231,7 @@ async function saveSpace() {
 
 function editSpace(space) {
   editingSpace.value = space
-  form.id = space.id || ''
+  form.id = (space.id || '').toString().toUpperCase()
   form.type = space.type || ''
   form.tenantId = space.tenantId || ''
   form.length = space.length || null
@@ -217,6 +239,9 @@ function editSpace(space) {
   form.metered = space.metered || false
   form.hasWater = space.hasWater || false
   form.hasSewer = space.hasSewer || false
+  form.weeklyRate = (space.weeklyRate ?? null)
+  form.storageRate = (space.storageRate ?? null)
+  form.monthlyRate = (space.monthlyRate ?? null)
   form.notes = space.notes || ''
   nextTick(() => {
     if (formContainer.value && typeof formContainer.value.scrollIntoView === 'function') {
@@ -232,13 +257,16 @@ function cancelEdit() {
 function resetForm() {
   editingSpace.value = null
   form.id = ''
-  form.type = ''
+  form.type = 'monthly'
   form.tenantId = ''
-  form.length = null
-  form.electric = null
-  form.metered = false
-  form.hasWater = false
-  form.hasSewer = false
+  form.length = 35
+  form.electric = 35
+  form.metered = true
+  form.hasWater = true
+  form.hasSewer = true
+  form.weeklyRate = null
+  form.storageRate = null
+  form.monthlyRate = null
   form.notes = ''
 }
 
@@ -251,7 +279,7 @@ function deleteSpace(space) {
     persistent: true
   }).onOk(async () => {
     try {
-      await db.spaces.delete(space.id)
+      await spacesStore.deleteSpace(space.id)
       q.notify({ type: 'positive', message: 'Space deleted', position: 'top' })
       if (editingSpace.value?.id === space.id) {
         resetForm()
@@ -270,9 +298,9 @@ async function loadSpaceFromQuery() {
   const spaceId = Array.isArray(qid) ? qid[0] : qid
   try {
     // Try from reactive list first
-    let space = spaces.value?.find(s => s.id === spaceId)
+    let space = spacesStore.spaces?.find(s => s.id === spaceId)
     if (!space) {
-      space = await db.spaces.get(spaceId)
+      space = await spacesStore.getSpaceById(spaceId)
     }
     if (space) {
       editSpace(space)

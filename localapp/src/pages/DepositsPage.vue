@@ -1,3 +1,12 @@
+<script setup>
+import { onMounted } from 'vue'
+import { useDepositsStore } from 'src/stores/depositsStore'
+
+const depositsStore = useDepositsStore()
+onMounted(async () => {
+  await depositsStore.fetchAll()
+})
+</script>
 <template>
   <q-page class="flex flex-center">
     <div>

@@ -261,7 +261,7 @@
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
-import { db } from 'src/boot/dexie'
+import { usePaymentsStore } from 'src/stores/paymentsStore'
 import { useQuasar } from 'quasar'
 import spaceIds from 'src/appdata/spaceIds.js'
 
@@ -411,18 +411,16 @@ const overnightFormErrors = reactive({})
 const tenantFormErrors = reactive({})
 const otherFormErrors = reactive({})
 
+const paymentsStore = usePaymentsStore()
 onMounted(async () => {
-  await fetchAllPayments()
+  await paymentsStore.fetchAll()
 })
 
 const fetchAllPayments = async () => {
-  try {
-    overnightPayments.value = await db.overnightPayments.toArray()
-    tenantPayments.value = await db.rentPayments.toArray()
-    otherPayments.value = await db.otherPayments.toArray()
-  } catch (err) {
-    console.error('Failed to fetch payments:', err)
-  }
+  await paymentsStore.fetchAll()
+  overnightPayments.value = paymentsStore.overnight
+  tenantPayments.value = paymentsStore.rent
+  otherPayments.value = paymentsStore.other
 }
 
 const validateOvernightForm = () => {
@@ -444,7 +442,7 @@ const addOvernightPayment = async () => {
     return
   }
   try {
-    await db.overnightPayments.add({
+    await paymentsStore.addOvernight({
       firstName: overnightForm.firstName,
       lastName: overnightForm.lastName,
       licensePlate: overnightForm.licensePlate,
@@ -513,7 +511,7 @@ const addTenantPayment = async () => {
     return
   }
   try {
-    await db.rentPayments.add({
+    await paymentsStore.addRent({
       spaceId: tenantForm.spaceId,
       paymentDate: tenantForm.paymentDate,
       amount: tenantForm.amount,
@@ -565,7 +563,7 @@ const addOtherPayment = async () => {
     return
   }
   try {
-    await db.otherPayments.add({
+    await paymentsStore.addOther({
       spaceId: otherForm.spaceId,
       name: otherForm.name,
       paymentDate: otherForm.paymentDate,
@@ -610,7 +608,7 @@ const deleteOvernightPayment = async (id) => {
     persistent: true
   }).onOk(async () => {
     try {
-      await db.overnightPayments.delete(id)
+      await paymentsStore.deleteOvernight(id)
       await fetchAllPayments()
     } catch (err) {
       console.error('Failed to delete overnight payment:', err)
@@ -626,7 +624,7 @@ const deleteTenantPayment = async (id) => {
     persistent: true
   }).onOk(async () => {
     try {
-      await db.rentPayments.delete(id)
+      await paymentsStore.deleteRent(id)
       await fetchAllPayments()
     } catch (err) {
       console.error('Failed to delete tenant payment:', err)
@@ -642,7 +640,7 @@ const deleteOtherPayment = async (id) => {
     persistent: true
   }).onOk(async () => {
     try {
-      await db.otherPayments.delete(id)
+      await paymentsStore.deleteOther(id)
       await fetchAllPayments()
     } catch (err) {
       console.error('Failed to delete other payment:', err)

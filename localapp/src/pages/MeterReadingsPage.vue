@@ -1,3 +1,12 @@
+<script setup>
+import { onMounted } from 'vue'
+import { useMeterReadingsStore } from 'src/stores/meterReadingsStore'
+
+const meterReadingsStore = useMeterReadingsStore()
+onMounted(async () => {
+  await meterReadingsStore.fetchAll()
+})
+</script>
 <template>
   <q-page class="flex flex-center">
     <div>
