@@ -134,7 +134,7 @@ const electricOptions = [
 const form = reactive({
   id: '',
   type: 'monthly',
-  tenantId: '',
+  tenantId: null,
   length: 35,
   electric: 35,
   metered: true,
@@ -156,14 +156,15 @@ tenantsStore.init()
 
 const tenantOptions = computed(() => {
   const list = tenantsStore.sortedTenants || []
-  if (!list.length) return []
-  return list
+  const options = list
     .filter(t => t.active !== false) // treat undefined or true as active
     .map(t => ({
       label: (t.firstName ? (t.firstName + ' ') : '') + t.lastName,
       value: t.id,
       inactive: t.active === false
     }))
+  // Prepend VACANT option allowing null tenant assignment
+  return [{ label: 'VACANT', value: null }, ...options]
 })
 
 // Map for quick tenant lookup by id
@@ -233,7 +234,7 @@ function editSpace(space) {
   editingSpace.value = space
   form.id = (space.id || '').toString().toUpperCase()
   form.type = space.type || ''
-  form.tenantId = space.tenantId || ''
+  form.tenantId = (space.tenantId != null) ? space.tenantId : null
   form.length = space.length || null
   form.electric = space.electric || null
   form.metered = space.metered || false
@@ -258,7 +259,7 @@ function resetForm() {
   editingSpace.value = null
   form.id = ''
   form.type = 'monthly'
-  form.tenantId = ''
+  form.tenantId = null
   form.length = 35
   form.electric = 35
   form.metered = true
