@@ -112,6 +112,17 @@
                       option-label="label" label="Space ID" dense outlined emit-value map-options
                       :rules="[val => tenantRequired.includes('spaceId') && val !== null && val !== '' ? true : 'Space ID is required']"
                       :error="tenantFormErrors.spaceId" />
+                    <div v-if="tenantNameBySpace(tenantForm.spaceId)" class="text-caption q-mt-xs">
+                      Tenant: {{ tenantNameBySpace(tenantForm.spaceId) }}
+                      <span v-if="otherSpacesForTenant(tenantForm.spaceId).length" class="q-ml-xs">
+                        — Also in:
+                        <span class="q-ml-xs">
+                          <router-link v-for="sid in otherSpacesForTenant(tenantForm.spaceId)" :key="sid" :to="{ name: 'spaces', query: { id: sid } }" class="q-mr-xs">
+                            {{ sid }}
+                          </router-link>
+                        </span>
+                      </span>
+                    </div>
                     <q-input v-model="tenantForm.paymentDate" label="Payment Date" type="date" dense outlined
                       :rules="[val => tenantRequired.includes('paymentDate') && val ? true : 'Payment Date is required']"
                       :error="tenantFormErrors.paymentDate" />
@@ -168,7 +179,10 @@
                 <q-list bordered padding>
                   <q-item v-for="payment in tenantPayments" :key="payment.id">
                     <q-item-section>
-                      <div class="text-subtitle1">Space #{{ payment.spaceId }}</div>
+                      <div class="text-subtitle1">
+                        Space #{{ payment.spaceId }}
+                        <span v-if="tenantNameBySpace(payment.spaceId)" class="q-ml-xs">— {{ tenantNameBySpace(payment.spaceId) }}</span>
+                      </div>
                       <div class="text-caption">{{ formatDate(payment.paymentDate) }} - {{ payment.paymentType }}</div>
                     </q-item-section>
                     <q-item-section side class="column items-end">
@@ -262,6 +276,8 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { usePaymentsStore } from 'src/stores/paymentsStore'
+import { useSpacesStore } from 'src/stores/spacesStore'
+import { useTenantsStore } from 'src/stores/tenantsStore'
 import { useQuasar } from 'quasar'
 import spaceIds from 'src/appdata/spaceIds.js'
 
@@ -412,8 +428,12 @@ const tenantFormErrors = reactive({})
 const otherFormErrors = reactive({})
 
 const paymentsStore = usePaymentsStore()
+const spacesStore = useSpacesStore()
+const tenantsStore = useTenantsStore()
 onMounted(async () => {
   await paymentsStore.fetchAll()
+  spacesStore.init && spacesStore.init()
+  tenantsStore.init && tenantsStore.init()
 })
 
 const fetchAllPayments = async () => {
@@ -421,6 +441,42 @@ const fetchAllPayments = async () => {
   overnightPayments.value = paymentsStore.overnight
   tenantPayments.value = paymentsStore.rent
   otherPayments.value = paymentsStore.other
+}
+
+// Build maps for quick lookup
+const tenantMap = () => {
+  const map = {}
+  const list = tenantsStore.tenants || []
+  for (const t of list) map[t.id] = t
+  return map
+}
+const spaceMap = () => {
+  const map = {}
+  const list = spacesStore.spaces || []
+  for (const s of list) map[s.id] = s
+  return map
+}
+
+const tenantNameBySpace = (spaceId) => {
+  if (spaceId == null || spaceId === '') return ''
+  const s = spaceMap()[spaceId]
+  if (!s || s.tenantId == null) return ''
+  const t = tenantMap()[s.tenantId]
+  if (!t) return ''
+  const first = t.firstName ? (t.firstName + ' ') : ''
+  return `${first}${t.lastName}`
+}
+
+// Return other space IDs assigned to the same tenant, excluding the selected space
+const otherSpacesForTenant = (spaceId) => {
+  if (spaceId == null || spaceId === '') return []
+  const s = spaceMap()[spaceId]
+  if (!s || s.tenantId == null) return []
+  const tenantId = s.tenantId
+  const list = spacesStore.spaces || []
+  return list
+    .filter(sp => sp.tenantId === tenantId && sp.id !== spaceId)
+    .map(sp => sp.id)
 }
 
 const validateOvernightForm = () => {
