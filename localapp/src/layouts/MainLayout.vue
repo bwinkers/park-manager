@@ -170,6 +170,12 @@ const linksList = [
     icon: 'mdi-wrench',
     link: '/maintenance-requests',
   },
+  {
+    title: 'Rental Application',
+    caption: 'You must pass a background check',
+    icon: 'mdi-script-text',
+    link: '/rental-application',
+  },
   // {
   //   title: 'Deposits',
   //   caption: 'Record deposits',
