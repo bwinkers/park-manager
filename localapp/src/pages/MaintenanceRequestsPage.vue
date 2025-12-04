@@ -101,7 +101,7 @@
           </q-card-section>
           <q-separator />
           <q-list bordered separator>
-            <q-item v-for="request in pendingRequests" :key="request.id">
+            <q-item v-for="request in pendingRequests" :key="request.id" clickable @click="loadRequestIntoForm(request)">
               <q-item-section>
                 <q-item-label class="text-bold">
                   {{ request.spaceId || request.parkArea || 'General' }}
@@ -490,6 +490,39 @@ function onPhotoSelected(e, idx) {
 
 function removePhoto(idx) {
   form.photos[idx] = { dataUrl: '', note: '' }
+}
+
+// Load a request into the form for editing/printing
+async function loadRequestIntoForm(request) {
+  try {
+    form.spaceId = request.spaceId || ''
+    form.parkArea = request.parkArea || ''
+    form.requestDate = (request.requestDate ? String(request.requestDate).split('T')[0] : new Date().toISOString().split('T')[0])
+    form.description = request.description || ''
+    form.notes = request.notes || ''
+
+    // Reset photos
+    form.photos = Array.from({ length: 10 }, () => ({ dataUrl: '', note: '' }))
+    const ids = Array.isArray(request.imgIds) ? request.imgIds : []
+    if (ids.length) {
+      // fetch images by ids and fill slots sequentially
+      const images = await db.images.bulkGet(ids)
+      let i = 0
+      for (const img of images) {
+        if (!img || i >= 10) break
+        form.photos[i] = { dataUrl: img.dataUrl || '', note: img.note || '' }
+        i++
+      }
+    }
+
+    // Scroll to top of form for visibility
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  } catch (err) {
+    console.error('Failed to load request into form:', err)
+    $q.notify({ type: 'negative', message: 'Failed to load request', position: 'top' })
+  }
 }
 
 // Generate a simple PDF of the current form content (similar layout style)
