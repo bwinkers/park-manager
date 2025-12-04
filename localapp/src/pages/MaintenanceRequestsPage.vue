@@ -20,7 +20,18 @@
                 outlined
                 clearable
               />
-              <q-input v-model="form.parkArea" label="Park Area" dense outlined />
+              <q-select
+                v-model="form.parkArea"
+                label="Park Area"
+                :options="parkAreaOptions"
+                option-label="label"
+                option-value="value"
+                emit-value
+                map-options
+                dense
+                outlined
+                clearable
+              />
               <q-input v-model="form.requestDate" label="Request Date" type="date" dense outlined
                 :rules="[val => !!val || 'Required']" />
               <q-input v-model="form.description" label="Description" type="textarea" dense outlined rows="4"
@@ -209,6 +220,28 @@ const spaceOptions = computed(() => {
     }
     return { label: `${s.id} — ${name}`, value: s.id }
   })
+})
+
+const parkAreaOptions = computed(() => {
+  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+  // Exclude 'Southside Dumpster' from Southside so we can place it after 'North Dumpster'
+  const southside = [
+    'Building', 'Mensroom', 'Womensroom', 'Laundry'
+  ].map(s => `Southside ${s}`).sort((a, b) => collator.compare(a, b))
+  const dumpsite = [
+    'Dumpsite', 'Dumpsite Building', 'Dumpsite Mensroom', 'Dumpsite Womensroom', 'Dumpsite Laundry'
+  ].sort((a, b) => collator.compare(a, b))
+
+  // Build general list and then insert 'Southside Dumpster' after 'North Dumpster'
+  const generalBase = ['Entrance', 'North Dumpster', 'Fence', 'Parking lot', 'Yard', 'CCTV System', 'AI Cameras', 'WiFi', 'Flag']
+  const generalSorted = generalBase.sort((a, b) => collator.compare(a, b))
+  const idxNorth = generalSorted.indexOf('North Dumpster')
+  const general = [...generalSorted]
+  const insertPos = idxNorth >= 0 ? idxNorth + 1 : 0
+  general.splice(insertPos, 0, 'Southside Dumpster')
+
+  const flat = [...southside, ...dumpsite, ...general]
+  return flat.map(v => ({ label: v, value: v }))
 })
 
 const form = reactive({
