@@ -138,6 +138,23 @@ db.version(28).stores({
     if (s.monthlyRate === undefined) s.monthlyRate = null;
   });
 });
+// Version 29 adds an images table for storing photos separately and referencing via imgIds
+db.version(29).stores({
+  tenants: '++id, firstName, lastName, phone, autocharge, email, active, notes',
+  spaces: 'id, tenantId, type, length, electric, metered, hasWater, hasSewer, weeklyRate, storageRate, monthlyRate, notes',
+  leases: '++id, tenantId, spaceId, startDate, endDate, rentalType, rate, isDelinquent, notes',
+  parkBillings: '++id, month, year, spaceId, utility, rent, storage, lateCharge, miscFees, deposit, climateCredit, amount, notes',
+  rentPayments: '++id, spaceId, paymentDate, amount, paymentType, notes, billedElectric, billedRent, trash, storage, miscFees, lateCharge, moveInDeposit, climateCredit',
+  overnightPayments: '++id, ticketNumber, firstName, lastName, licensePlate, streetAddress, streetAddress2, city, state, zip, numInParty, reason, rvType, checkInDate, checkOutDate, paymentDate, amountCollected, paymentType, notes',
+  otherPayments: '++id, spaceId, name, paymentDate, amount, qty, paymentType, reason, notes',
+  meterReadings: '++id, spaceId, readingDate, readingValue, adjustedReading, notes',
+  deposits: '++id, cash, itemsTotal, total, date, notes',
+  pettyCash: '++id, amount, disbursedDate, paidTo, submittedBy, paidFor, receiptDate, disbursedBy, isCredit, notes',
+  waitList: '$$id, name, phone, email, rvType, rvLength, rvYear, backgroundCheck, desiredStartDate, dateAdded, notes, status',
+  reservations: '$$id, name, phone, email, rvType, numInParty, checkInDate, checkOutDate, notes',
+  maintenanceRequests: '++id, spaceId, parkArea, requestDate, description, status, completedDate, pettyCashTransactions, imgIds, notes',
+  images: '++id, createdAt'
+});
 db.open().catch((err) => {
   console.error('Failed to open db: ' + (err.stack || err));
 });
