@@ -17,6 +17,7 @@ const routes = [
       { path: '/maintenance-requests', name: 'maintenance-requests', component: () => import('pages/MaintenanceRequestsPage.vue') },
       { path: '/park-maps', name: 'park-maps', component: () => import('pages/ParkMapsPage.vue') },
       { path: '/rental-application', name: 'rental-application', component: () => import('src/pages/RentalApplicationPage.vue') },
+      { path: '/walkthrough', name: 'walkthrough', component: () => import('pages/WalkthroughPage.vue') },
 
     ],
 

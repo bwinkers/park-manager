@@ -53,7 +53,11 @@
             </q-input>
           </q-card-section>
           <q-list bordered separator>
-            <q-item v-for="space in filteredSpaces" :key="space.id">
+            <q-item v-for="space in filteredSpacesWithPhotos" :key="space.id">
+              <q-item-section avatar>
+                <img v-if="space.photo?.dataUrl" :src="space.photo.dataUrl" alt="thumb" style="width:64px;height:48px;object-fit:cover;border-radius:4px;border:1px solid #ddd;" />
+                <q-icon v-else name="mdi-image-off" color="grey" />
+              </q-item-section>
               <q-item-section>
                 <q-item-label class="text-bold">{{ space.id }}
                   <span v-if="space.tenantId && tenantMap[space.tenantId]">
@@ -103,7 +107,9 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, watch, nextTick } from 'vue'
+import { reactive, ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { liveQuery } from 'dexie'
+import { db } from 'src/boot/dexie'
 import { useQuasar } from 'quasar'
 // db import not needed now; using stores
 import { useSpacesStore } from 'src/stores/spacesStore'
@@ -189,6 +195,41 @@ const filteredSpaces = computed(() => {
     s.type?.toLowerCase().includes(searchLower) ||
     s.notes?.toLowerCase().includes(searchLower)
   )
+})
+
+// Images lookup for thumbnails (use only spaces.photoId)
+const imagesById = ref({})
+async function refreshImagesMap() {
+  const list = await db.images.toArray()
+  const byId = {}
+  for (const img of list) {
+    if (img && img.id != null) byId[img.id] = img
+  }
+  imagesById.value = byId
+}
+
+let imagesSubscription = null
+onMounted(() => {
+  refreshImagesMap()
+  imagesSubscription = liveQuery(() => db.images.toArray()).subscribe({
+    next: () => refreshImagesMap(),
+    error: () => { /* ignore subscription errors */ }
+  })
+})
+
+onUnmounted(() => {
+  if (imagesSubscription && imagesSubscription.unsubscribe) {
+    try { imagesSubscription.unsubscribe() } catch { /* ignore */ }
+  }
+  imagesSubscription = null
+})
+
+// Merge photos into filtered spaces using only `photoId`
+const filteredSpacesWithPhotos = computed(() => {
+  return (filteredSpaces.value || []).map(s => {
+    const photo = s.photoId ? imagesById.value[s.photoId] || null : null
+    return { ...s, photo }
+  })
 })
 
 async function saveSpace() {

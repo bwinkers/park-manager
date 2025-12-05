@@ -176,6 +176,12 @@ const linksList = [
     icon: 'mdi-script-text',
     link: '/rental-application',
   },
+  {
+    title: 'Walkthrough',
+    caption: 'Perform a park walkthrough',
+    icon: 'mdi-walk',
+    link: '/walkthrough',
+  },
   // {
   //   title: 'Deposits',
   //   caption: 'Record deposits',

@@ -189,7 +189,8 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, nextTick } from 'vue'
+import { reactive, ref, computed, onMounted, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { db } from 'src/boot/dexie'
 import { liveQuery } from 'dexie'
@@ -198,12 +199,25 @@ import { useSpacesStore } from 'src/stores/spacesStore'
 import { useTenantsStore } from 'src/stores/tenantsStore'
 
 const $q = useQuasar()
+const route = useRoute()
 const showCompleted = ref(false)
 const spacesStore = useSpacesStore()
 const tenantsStore = useTenantsStore()
 onMounted(() => {
   spacesStore.init && spacesStore.init()
   tenantsStore.init && tenantsStore.init()
+  // Preselect spaceId from query string if provided
+  const qsSpaceId = route.query.spaceId
+  if (qsSpaceId) {
+    form.spaceId = String(qsSpaceId)
+  }
+})
+
+// React to changes in query param `spaceId`
+watch(() => route.query.spaceId, (newVal) => {
+  if (newVal) {
+    form.spaceId = String(newVal)
+  }
 })
 
 const spaceOptions = computed(() => {
