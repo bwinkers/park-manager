@@ -30,7 +30,7 @@
         <tr v-for="space in spacesView" :key="space.id">
           <td>{{ space.id }}</td>
           <td>
-            <router-link v-if="space.tenantId" :to="{ name: 'tenants' }">
+            <router-link v-if="space.tenantId" :to="{ name: 'tenants', query: { id: space.tenantId } }">
               {{ space.tenantName }}
             </router-link>
             <span v-else>—</span>

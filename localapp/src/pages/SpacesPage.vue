@@ -28,6 +28,7 @@
                 :min="0" />
               <q-input v-model.number="form.monthlyRate" label="Monthly Rate ($)" type="number" dense outlined :step="1"
                 :min="0" />
+              <q-input v-model.number="form.deposit" label="Deposit ($)" type="number" dense outlined :step="1" :min="0" />
               <q-input v-model="form.notes" label="Notes" type="textarea" dense outlined rows="3" />
               <div class="row justify-end q-gutter-sm">
                 <q-btn v-if="editingSpace" label="Cancel" color="grey" flat @click="cancelEdit" />
@@ -149,6 +150,7 @@ const form = reactive({
   weeklyRate: null,
   storageRate: null,
   monthlyRate: null,
+  deposit: null,
   notes: ''
 })
 
@@ -251,6 +253,7 @@ async function saveSpace() {
       weeklyRate: (Number.isFinite(form.weeklyRate) ? Math.round(form.weeklyRate) : null),
       storageRate: (Number.isFinite(form.storageRate) ? Math.round(form.storageRate) : null),
       monthlyRate: (Number.isFinite(form.monthlyRate) ? Math.round(form.monthlyRate) : null),
+      deposit: (Number.isFinite(form.deposit) ? Math.round(form.deposit) : null),
       notes: form.notes || ''
     }
 
@@ -284,6 +287,7 @@ function editSpace(space) {
   form.weeklyRate = (space.weeklyRate ?? null)
   form.storageRate = (space.storageRate ?? null)
   form.monthlyRate = (space.monthlyRate ?? null)
+  form.deposit = (space.deposit ?? null)
   form.notes = space.notes || ''
   nextTick(() => {
     if (formContainer.value && typeof formContainer.value.scrollIntoView === 'function') {
@@ -309,6 +313,7 @@ function resetForm() {
   form.weeklyRate = null
   form.storageRate = null
   form.monthlyRate = null
+  form.deposit = null
   form.notes = ''
 }
 
