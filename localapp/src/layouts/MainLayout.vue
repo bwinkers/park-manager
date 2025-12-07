@@ -182,6 +182,12 @@ const linksList = [
     icon: 'mdi-counter',
     link: '/meter-readings',
   },
+  {
+    title: 'Electric Usage',
+    caption: 'View meter photos and values',
+    icon: 'mdi-flash',
+    link: '/electric-usage',
+  },
   // {
   //   title: 'Deposits',
   //   caption: 'Record deposits',

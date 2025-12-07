@@ -14,6 +14,7 @@ const routes = [
       { path: '/reports', name: 'reports', component: () => import('pages/ReportsPage.vue') },
       { path: '/wait-list', name: 'wait-list', component: () => import('pages/WaitListPage.vue') },
       { path: '/meter-readings', name: 'meter-readings', component: () => import('pages/MeterReadingsPage.vue') },
+      { path: '/electric-usage', name: 'electric-usage', component: () => import('pages/ElectricUsagePage.vue') },
       { path: '/maintenance-requests', name: 'maintenance-requests', component: () => import('pages/MaintenanceRequestsPage.vue') },
       { path: '/park-maps', name: 'park-maps', component: () => import('pages/ParkMapsPage.vue') },
       { path: '/rental-application', name: 'rental-application', component: () => import('src/pages/RentalApplicationPage.vue') },

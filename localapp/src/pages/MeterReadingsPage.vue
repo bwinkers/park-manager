@@ -2,25 +2,8 @@
 	<q-page class="q-pa-md meter-readings-page">
 		<div class="text-h6 q-mb-md">Meter Readings</div>
 
-		<!-- Camera dialog -->
-		<q-dialog v-model="cameraActive" persistent maximized>
-			<q-card flat class="q-pa-md">
-				<div class="row-controls">
-					<div>Capturing for Space: <strong>{{ captureSpaceId }}</strong></div>
-					<q-btn dense flat label="Close" @click="stopCamera" />
-				</div>
-				<video ref="videoEl" autoplay playsinline muted class="video"></video>
-				<canvas ref="canvasEl" class="hidden"></canvas>
-				<div class="row-controls">
-					<q-btn dense label="Capture Frame" @click="captureFrame" />
-					<q-space />
-					<div class="slots">Photos: {{ (pendingPhotosBySpace[captureSpaceId] || []).length }}/4</div>
-				</div>
-				<div class="thumbs">
-					<img v-for="(img, idx) in (pendingPhotosBySpace[captureSpaceId] || [])" :key="idx" :src="img" class="thumb" />
-				</div>
-			</q-card>
-		</q-dialog>
+		<!-- Reusable Camera dialog component -->
+		<CameraDialog v-model="cameraActive" @capture="onCaptured" />
 
 		<q-table :rows="spacesView" :columns="columns" row-key="id" flat :grid="isMobile">
 			<!-- Mobile card layout -->
@@ -135,6 +118,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { liveQuery } from 'dexie'
 import { db } from 'src/boot/dexie'
+import CameraDialog from 'src/components/CameraDialog.vue'
 import { useSpacesStore } from 'src/stores/spacesStore'
 import { useTenantsStore } from 'src/stores/tenantsStore'
 import { useMeterReadingsStore } from 'src/stores/meterReadingsStore'
@@ -208,7 +192,7 @@ const columns = [
 	{ name: 'tenant', label: 'Tenant', field: 'tenantName', align: 'left' },
 	{ name: 'photo', label: 'Photo', field: 'photo', align: 'left' },
 	{ name: 'reading', label: 'Reading', field: 'reading', align: 'left' },
-	{ name: 'actions', label: 'Actions', field: 'actions', align: 'left' }
+	{ name: 'actions', label: '', field: 'actions', align: 'left' }
 ]
 
 // Live images map for lookup by id
@@ -236,21 +220,26 @@ onUnmounted(() => {
 	imagesSubscription = null
 })
 
-// Latest meter-reading photo per space and thumbnails list
-const lastMeterBySpaceId = ref({})
+// Thumbnails list for latest reading per space
 const meterThumbsBySpace = ref({}) // { [spaceId]: row[] }
 let meterImagesSub = null
 async function refreshMeterImages() {
 	const list = await db.meterReadingImages.toArray()
-	const latest = {}
 	const grouped = {}
+	// Build a quick map of latest reading id per space
+	const latestReadingIdBySpace = {}
+	const latestMap = lastReadingsBySpace.value || {}
+	for (const sid in latestMap) {
+		const r = latestMap[sid]
+		if (r && r.id != null) latestReadingIdBySpace[String(sid)] = r.id
+	}
+	// Filter images to only those for latest reading per space
 	for (const row of list) {
 		if (!row || !row.spaceId) continue
-		const prev = latest[row.spaceId]
-		const prevTs = prev ? (Date.parse(prev.createdAt) || 0) : 0
-		const currTs = Date.parse(row.createdAt) || 0
-		if (!prev || currTs >= prevTs) latest[row.spaceId] = row
 		const sk = String(row.spaceId)
+		const latestId = latestReadingIdBySpace[sk]
+		if (latestId == null) continue
+		if (row.readingId !== latestId) continue
 		if (!grouped[sk]) grouped[sk] = []
 		grouped[sk].push(row)
 	}
@@ -258,7 +247,6 @@ async function refreshMeterImages() {
 		grouped[key].sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0))
 		grouped[key] = grouped[key].slice(0, 4)
 	}
-	lastMeterBySpaceId.value = latest
 	meterThumbsBySpace.value = grouped
 }
 onMounted(() => {
@@ -284,6 +272,11 @@ onMounted(() => {
 		error: () => {}
 	})
 })
+
+// When the latest reading per space changes, re-filter thumbnails
+watch(() => lastReadingsBySpace.value, () => {
+	refreshMeterImages()
+}, { deep: true })
 onUnmounted(() => {
 	if (meterImagesSub && meterImagesSub.unsubscribe) {
 		try { meterImagesSub.unsubscribe() } catch { /* ignore */ }
@@ -383,9 +376,6 @@ function cancelNewEntry(spaceId) {
 
 // Camera controls
 const cameraActive = ref(false)
-const videoEl = ref(null)
-const canvasEl = ref(null)
-const mediaStream = ref(null)
 const captureSpaceId = ref('')
 
 async function openCameraFor(spaceId) {
@@ -398,77 +388,20 @@ async function openCameraFor(spaceId) {
 	if (!pendingPhotosBySpace.value[captureSpaceId.value]) {
 		pendingPhotosBySpace.value[captureSpaceId.value] = []
 	}
-	await startCamera()
+	cameraActive.value = true
 }
 
-async function startCamera() {
-	try {
-		if (!navigator?.mediaDevices?.getUserMedia) {
-			$q.notify({ type: 'warning', message: 'Camera not supported', position: 'top' })
-			return
-		}
-		cameraActive.value = true
-		await nextTick()
-		const candidates = [
-			{ video: { facingMode: 'environment' } },
-			{ video: { facingMode: 'user' } },
-			{ video: true }
-		]
-		let stream = null
-		for (const c of candidates) {
-			try {
-				stream = await navigator.mediaDevices.getUserMedia(c)
-				if (stream) break
-			} catch { /* try next constraint */ }
-		}
-		if (!stream) {
-			cameraActive.value = false
-			return
-		}
-		mediaStream.value = stream
-		if (videoEl.value) {
-			videoEl.value.muted = true
-			videoEl.value.srcObject = stream
-			try { await videoEl.value.play() } catch { /* ignore autoplay errors */ }
-		}
-	} catch (err) {
-		console.error('startCamera failed:', err)
-		cameraActive.value = false
-	}
-}
-
-async function stopCamera() {
-	if (mediaStream.value) {
-		try { mediaStream.value.getTracks().forEach(t => t.stop()) } catch { /* ignore */ }
-		mediaStream.value = null
-	}
-	if (videoEl.value) {
-		try { videoEl.value.srcObject = null } catch { /* ignore */ }
-	}
-	cameraActive.value = false
-}
-
-function captureFrame() {
+function onCaptured(dataUrl) {
 	const sid = captureSpaceId.value
 	if (!sid || !isNewBySpace.value[sid]) {
 		$q.notify({ type: 'warning', message: 'Enable New to capture', position: 'top' })
 		return
 	}
-	if (!sid || !videoEl.value || !canvasEl.value) return
 	const arr = pendingPhotosBySpace.value[sid] || []
 	if (arr.length >= 4) {
 		$q.notify({ type: 'warning', message: 'Maximum 4 photos', position: 'top' })
 		return
 	}
-	const video = videoEl.value
-	const canvas = canvasEl.value
-	const w = video.videoWidth
-	const h = video.videoHeight
-	canvas.width = w
-	canvas.height = h
-	const ctx = canvas.getContext('2d')
-	ctx.drawImage(video, 0, 0, w, h)
-	const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
 	pendingPhotosBySpace.value[sid] = [...arr, dataUrl]
 }
 
@@ -487,18 +420,20 @@ async function saveReading(spaceId) {
 		const readingId = await meterStore.addReturnId({ spaceId: sid, readingDate, readingValue, notes })
 		// Persist pending photos for this space into separate table
 		const photos = pendingPhotosBySpace.value[sid] || []
+		const savedThumbs = []
 		for (const dataUrl of photos.slice(0, 4)) {
 			const createdAt = new Date().toISOString()
 			const imgId = await db.meterReadingImages.add({ readingId, spaceId: sid, dataUrl, createdAt })
-			// Optimistically update thumbnails for immediate UI feedback
-			const arr = meterThumbsBySpace.value[sid] || []
-			meterThumbsBySpace.value[sid] = [{ id: imgId, readingId, spaceId: sid, dataUrl, createdAt }, ...arr].slice(0, 4)
+			// Optimistically collect thumbnails for this newly saved latest reading only
+			savedThumbs.push({ id: imgId, readingId, spaceId: sid, dataUrl, createdAt })
 		}
+		meterThumbsBySpace.value[sid] = savedThumbs.slice(0, 4)
+		// Clear pending photos after save to remove the "photo(s) ready" indicator
+		pendingPhotosBySpace.value[sid] = []
 		// Clear local state for this space
 		// Do not clear the form; persist latest values in the inputs
 		readingsBySpace.value[sid] = String(readingValue)
 		notesBySpace.value[sid] = notes
-		// Keep pending photos visible after save
 		readingDateBySpace.value[sid] = readingDate
 		isNewBySpace.value[sid] = false
 		previousFormBySpace.value[sid] = null

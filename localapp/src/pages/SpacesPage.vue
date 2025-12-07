@@ -89,6 +89,9 @@
                   <q-btn dense flat color="primary" icon="mdi-pencil" @click="editSpace(space)">
                     <q-tooltip>Edit</q-tooltip>
                   </q-btn>
+                  <q-btn dense flat color="primary" icon="mdi-camera" @click="openCameraFor(space)">
+                    <q-tooltip>Update Photo</q-tooltip>
+                  </q-btn>
                   <q-btn dense flat color="negative" icon="mdi-delete" @click="deleteSpace(space)">
                     <q-tooltip>Delete</q-tooltip>
                   </q-btn>
@@ -105,6 +108,7 @@
       </div>
     </div>
   </q-page>
+  <CameraDialog v-model="cameraActive" @capture="onCaptured" />
 </template>
 
 <script setup>
@@ -116,12 +120,15 @@ import { useQuasar } from 'quasar'
 import { useSpacesStore } from 'src/stores/spacesStore'
 import { useTenantsStore } from 'src/stores/tenantsStore'
 import { useRoute } from 'vue-router'
+import CameraDialog from 'src/components/CameraDialog.vue'
 
 const $q = useQuasar()
 const search = ref('')
 const editingSpace = ref(null)
 const formContainer = ref(null)
 const route = useRoute()
+const cameraActive = ref(false)
+const captureSpaceId = ref('')
 
 const typeOptions = [
   { label: 'Monthly', value: 'monthly' },
@@ -366,4 +373,25 @@ onMounted(() => {
 watch(() => route.query.id, () => {
   loadSpaceFromQuery()
 })
+
+function openCameraFor(space) {
+  captureSpaceId.value = String(space.id)
+  cameraActive.value = true
+}
+
+async function onCaptured(dataUrl) {
+  const sid = captureSpaceId.value
+  if (!sid) return
+  try {
+    const createdAt = new Date().toISOString()
+    const imgId = await db.images.add({ spaceId: sid, dataUrl, createdAt })
+    await spacesStore.updateSpace(sid, { photoId: imgId })
+    $q.notify({ type: 'positive', message: 'Space photo updated', position: 'top' })
+  } catch (e) {
+    console.error('Failed to save space photo', e)
+    $q.notify({ type: 'negative', message: 'Failed to save space photo', position: 'top' })
+  } finally {
+    cameraActive.value = false
+  }
+}
 </script>
