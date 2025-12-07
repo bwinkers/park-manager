@@ -6,6 +6,8 @@
 
         <q-toolbar-title> Park Manager </q-toolbar-title>
 
+        <q-btn flat dense round icon="refresh" aria-label="Refresh" @click="refreshApp" />
+
         <!-- <div>Park Manager v{{ $q.version }}</div> -->
       </q-toolbar>
     </q-header>
@@ -208,6 +210,10 @@ const fileInput = ref(null)
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
+}
+
+function refreshApp() {
+  try { window.location.reload() } catch (e) { console.warn('Refresh failed', e) }
 }
 
 async function downloadDatabase() {

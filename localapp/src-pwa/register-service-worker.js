@@ -27,8 +27,28 @@ register(process.env.SERVICE_WORKER_FILE, {
     // console.log('New content is downloading.')
   },
 
-  updated (/* registration */) {
-    // console.log('New content is available; please refresh.')
+  updated (registration) {
+    // New content is available; immediately activate and reload to ensure iOS gets fresh assets
+    try {
+      if (registration && registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+        // On iOS, proactively reload to pick up the new SW
+        setTimeout(() => {
+          try { window.location.reload() } catch (err) { console.warn('Reload failed', err) }
+        }, 250)
+      } else {
+        // Fallback reload
+        setTimeout(() => {
+          try { window.location.reload() } catch (err) { console.warn('Reload failed', err) }
+        }, 250)
+      }
+    } catch (err) {
+      console.warn('Service worker update handling failed', err)
+      // As a last resort, still try to reload
+      setTimeout(() => {
+        try { window.location.reload() } catch (e2) { console.warn('Reload failed', e2) }
+      }, 250)
+    }
   },
 
   offline () {

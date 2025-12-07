@@ -9,6 +9,9 @@
 import { clientsClaim } from 'workbox-core'
 import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching'
 import { registerRoute, NavigationRoute } from 'workbox-routing'
+import { NetworkFirst, CacheFirst } from 'workbox-strategies'
+import { CacheableResponsePlugin } from 'workbox-cacheable-response'
+import { ExpirationPlugin } from 'workbox-expiration'
 
 self.skipWaiting()
 clientsClaim()
@@ -28,3 +31,28 @@ if (process.env.MODE !== 'ssr' || process.env.PROD) {
     )
   )
 }
+
+// Respond to skip waiting message to activate immediately
+self.addEventListener('message', (event) => {
+  if (event && event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting()
+  }
+})
+
+// Network-first for navigation (HTML) to ensure latest content on iOS
+registerRoute(({ request }) => request.mode === 'navigate', new NetworkFirst({
+  cacheName: 'html-cache',
+  networkTimeoutSeconds: 5,
+  plugins: [
+    new CacheableResponsePlugin({ statuses: [0, 200] })
+  ]
+}))
+
+// Cache-first for static assets with expiration
+registerRoute(({ request }) => ['style', 'script', 'image', 'font'].includes(request.destination), new CacheFirst({
+  cacheName: 'static-cache',
+  plugins: [
+    new CacheableResponsePlugin({ statuses: [0, 200] }),
+    new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 }) // 30 days
+  ]
+}))
