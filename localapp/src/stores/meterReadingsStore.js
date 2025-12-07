@@ -16,15 +16,26 @@ export const useMeterReadingsStore = defineStore('meterReadings', () => {
   const add = async (payload) => {
     const row = { ...(payload || {}) }
     if ('id' in row) delete row.id
-    row.spaceId = (row.spaceId !== '' && row.spaceId != null) ? Number(row.spaceId) : null
+    // Space IDs are strings (e.g., "A1"), store as-is
+    row.spaceId = (row.spaceId !== '' && row.spaceId != null) ? String(row.spaceId) : null
     await db.meterReadings.add(row)
     await fetchAll()
+  }
+
+  const addReturnId = async (payload) => {
+    const row = { ...(payload || {}) }
+    if ('id' in row) delete row.id
+    // Space IDs are strings (e.g., "A1"), store as-is
+    row.spaceId = (row.spaceId !== '' && row.spaceId != null) ? String(row.spaceId) : null
+    const id = await db.meterReadings.add(row)
+    await fetchAll()
+    return id
   }
 
   const update = async (id, changes) => {
     const patch = { ...changes }
     if ('spaceId' in patch) {
-      patch.spaceId = (patch.spaceId !== '' && patch.spaceId != null) ? Number(patch.spaceId) : null
+      patch.spaceId = (patch.spaceId !== '' && patch.spaceId != null) ? String(patch.spaceId) : null
     }
     await db.meterReadings.update(id, patch)
     await fetchAll()
@@ -37,5 +48,5 @@ export const useMeterReadingsStore = defineStore('meterReadings', () => {
 
   const getById = async (id) => db.meterReadings.get(id)
 
-  return { readings, fetchAll, add, update, remove, getById }
+  return { readings, fetchAll, add, addReturnId, update, remove, getById }
 })

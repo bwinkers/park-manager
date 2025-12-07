@@ -109,12 +109,6 @@ const linksList = [
     icon: 'mdi-calendar-check',
     link: '/reservations',
   },
-  // {
-  //   title: 'Meter Readings',
-  //   caption: 'Record meter readings',
-  //   icon: 'mdi-counter',
-  //   link: '/meter-readings',
-  // },
   {
     title: 'Wait List',
     caption: 'Manage wait list',
@@ -181,6 +175,12 @@ const linksList = [
     caption: 'Perform a park walkthrough',
     icon: 'mdi-walk',
     link: '/walkthrough',
+  },
+    {
+    title: 'Meter Readings',
+    caption: 'Record meter readings',
+    icon: 'mdi-counter',
+    link: '/meter-readings',
   },
   // {
   //   title: 'Deposits',
