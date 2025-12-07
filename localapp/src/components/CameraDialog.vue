@@ -29,8 +29,11 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'capture'])
 
 const open = ref(props.modelValue)
-watch(() => props.modelValue, v => { open.value = v; if (v) startCamera() })
-watch(open, v => emit('update:modelValue', v))
+watch(() => props.modelValue, v => { open.value = v })
+watch(open, v => {
+  emit('update:modelValue', v)
+  if (v) startCamera(); else stopCamera()
+})
 
 const videoEl = ref(null)
 const canvasEl = ref(null)
@@ -38,12 +41,16 @@ const mediaStream = ref(null)
 
 async function startCamera() {
   try {
-    if (mediaStream.value) return
-    mediaStream.value = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    // ensure fresh stream each time dialog opens
+    if (mediaStream.value) stopCamera()
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+    mediaStream.value = stream
     const video = videoEl.value
     if (video) {
-      video.srcObject = mediaStream.value
-      await video.play().catch(() => {})
+      try { video.muted = true } catch (err) { console.warn('Failed to set muted', err) }
+      try { video.setAttribute('playsinline', 'true') } catch (err) { console.warn('Failed to set playsinline', err) }
+      video.srcObject = stream
+      await video.play().catch((err) => { console.warn('video.play failed', err) })
     }
   } catch (e) {
     console.error('Failed to start camera', e)
@@ -78,6 +85,8 @@ function captureFrame() {
   ctx.drawImage(video, 0, 0, w, h)
   const dataUrl = canvas.toDataURL('image/jpeg', 0.9)
   emit('capture', dataUrl)
+  // ensure video remains active without needing to reopen
+  try { video.play() } catch (err) { console.warn('Failed to play video after capture', err) }
 }
 
 onUnmounted(() => stopCamera())
