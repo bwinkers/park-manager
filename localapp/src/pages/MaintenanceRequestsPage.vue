@@ -32,6 +32,18 @@
                 outlined
                 clearable
               />
+              <q-select
+                v-model="form.parkService"
+                label="Park Services"
+                :options="parkServiceOptions"
+                option-label="label"
+                option-value="value"
+                emit-value
+                map-options
+                dense
+                outlined
+                clearable
+              />
               <q-input v-model="form.requestDate" label="Request Date" type="date" dense outlined
                 :rules="[val => !!val || 'Required']" />
               <q-input v-model="form.description" label="Description" type="textarea" dense outlined rows="4"
@@ -115,7 +127,7 @@
             <q-item v-for="request in pendingRequests" :key="request.id" clickable @click="loadRequestIntoForm(request)">
               <q-item-section>
                 <q-item-label class="text-bold">
-                  {{ request.spaceId || request.parkArea || 'General' }}
+                  {{ request.spaceId || request.parkArea || request.parkService || 'General' }}
                 </q-item-label>
                 <q-item-label caption>
                   <div>Requested: {{ formatDate(request.requestDate) }}</div>
@@ -161,7 +173,7 @@
             <q-item v-for="request in completedRequests" :key="request.id">
               <q-item-section>
                 <q-item-label class="text-bold">
-                  {{ request.spaceId || request.parkArea || 'General' }}
+                  {{ request.spaceId || request.parkArea || request.parkService || 'General' }}
                 </q-item-label>
                 <q-item-label caption>
                   <div>Requested: {{ formatDate(request.requestDate) }}</div>
@@ -197,6 +209,7 @@ import { liveQuery } from 'dexie'
 import { useObservable } from '@vueuse/rxjs'
 import { useSpacesStore } from 'src/stores/spacesStore'
 import { useTenantsStore } from 'src/stores/tenantsStore'
+import { getParkAreaOptions } from 'src/appdata/parkAreas'
 
 const $q = useQuasar()
 const route = useRoute()
@@ -236,31 +249,17 @@ const spaceOptions = computed(() => {
   })
 })
 
-const parkAreaOptions = computed(() => {
-  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
-  // Exclude 'Southside Dumpster' from Southside so we can place it after 'North Dumpster'
-  const southside = [
-    'Building', 'Mensroom', 'Womensroom', 'Laundry'
-  ].map(s => `Southside ${s}`).sort((a, b) => collator.compare(a, b))
-  const dumpsite = [
-    'Dumpsite', 'Dumpsite Building', 'Dumpsite Mensroom', 'Dumpsite Womensroom', 'Dumpsite Laundry'
-  ].sort((a, b) => collator.compare(a, b))
+const parkAreaOptions = computed(() => getParkAreaOptions())
 
-  // Build general list and then insert 'Southside Dumpster' after 'North Dumpster'
-  const generalBase = ['Entrance', 'North Dumpster', 'Fence', 'Parking lot', 'Yard', 'CCTV System', 'AI Cameras', 'WiFi', 'Flag']
-  const generalSorted = generalBase.sort((a, b) => collator.compare(a, b))
-  const idxNorth = generalSorted.indexOf('North Dumpster')
-  const general = [...generalSorted]
-  const insertPos = idxNorth >= 0 ? idxNorth + 1 : 0
-  general.splice(insertPos, 0, 'Southside Dumpster')
-
-  const flat = [...southside, ...dumpsite, ...general]
-  return flat.map(v => ({ label: v, value: v }))
+const parkServiceOptions = computed(() => {
+  const services = ['AI Cameras', 'CCTV System', 'WiFi', 'Electric', 'Water', 'Sewer']
+  return services.map(v => ({ label: v, value: v }))
 })
 
 const form = reactive({
   spaceId: '',
   parkArea: '',
+  parkService: '',
   requestDate: new Date().toISOString().split('T')[0],
   description: '',
   notes: '',
@@ -459,6 +458,7 @@ async function addRequest() {
     const request = {
       spaceId: form.spaceId || '',
       parkArea: form.parkArea || '',
+      parkService: form.parkService || '',
       requestDate: form.requestDate,
       description: form.description,
       status: 'pending',
@@ -480,6 +480,7 @@ async function addRequest() {
 function resetForm() {
   form.spaceId = ''
   form.parkArea = ''
+  form.parkService = ''
   form.requestDate = new Date().toISOString().split('T')[0]
   form.description = ''
   form.notes = ''
@@ -544,6 +545,7 @@ async function loadRequestIntoForm(request) {
   try {
     form.spaceId = request.spaceId || ''
     form.parkArea = request.parkArea || ''
+    form.parkService = request.parkService || ''
     form.requestDate = (request.requestDate ? String(request.requestDate).split('T')[0] : new Date().toISOString().split('T')[0])
     form.description = request.description || ''
     form.notes = request.notes || ''

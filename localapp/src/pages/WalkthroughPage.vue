@@ -19,7 +19,13 @@
         <img :src="capturedDataUrl" alt="Captured preview" />
       </div>
     </div>
-    <div class="cards-wrapper">
+    <q-tabs v-model="activeTab" class="text-primary" dense>
+      <q-tab name="spaces" label="Spaces" />
+      <q-tab name="park-areas" label="Park Areas" />
+    </q-tabs>
+    <q-tab-panels v-model="activeTab" animated>
+      <q-tab-panel name="spaces">
+        <div class="cards-wrapper">
       <div v-for="space in filteredSpaces" :key="space.id" class="col-12">
         <q-card flat bordered class="q-mb-sm q-pa-sm">
           <div class="row items-start q-gutter-sm">
@@ -53,6 +59,22 @@
         </q-card>
       </div>
     </div>
+      </q-tab-panel>
+      <q-tab-panel name="park-areas">
+        <q-list bordered separator>
+          <q-item v-for="opt in parkAreaOptions" :key="opt.value">
+            <q-item-section>
+              <q-item-label>{{ opt.label }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn dense flat icon="mdi-wrench" @click="openMaintenanceRequestForArea(opt.value)">
+                <q-tooltip>Create Request</q-tooltip>
+              </q-btn>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-tab-panel>
+    </q-tab-panels>
 
     <!-- History Drawer -->
     <div v-if="historyOpen" class="history-backdrop" @click="closeHistory"></div>
@@ -97,6 +119,7 @@
 import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue'
 import { liveQuery } from 'dexie'
 import { useRouter } from 'vue-router'
+import { getParkAreaOptions } from 'src/appdata/parkAreas'
 import { useSpacesStore } from 'src/stores/spacesStore'
 import { useTenantsStore } from 'src/stores/tenantsStore'
 
@@ -191,6 +214,8 @@ const historySpaceId = ref('')
 const historyImages = ref([])
 const previewOpen = ref(false)
 const previewSrc = ref('')
+const activeTab = ref('spaces')
+const parkAreaOptions = computed(() => getParkAreaOptions())
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -269,6 +294,10 @@ async function deleteImage(imgId) {
 function openPreview(src) {
   previewSrc.value = src
   previewOpen.value = true
+}
+
+function openMaintenanceRequestForArea(area) {
+  router.push({ name: 'maintenance-requests', query: { parkArea: area } })
 }
 
 async function startCameraForSpace(spaceId) {
