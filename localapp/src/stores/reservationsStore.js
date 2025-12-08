@@ -51,11 +51,24 @@ export const useReservationsStore = defineStore('reservations', () => {
     }
   }
 
+  const updateReservation = async (id, changes) => {
+    try {
+      const patch = { ...(changes || {}) }
+      if ('id' in patch) delete patch.id
+      await db.reservations.update(id, patch)
+      await fetchReservations()
+    } catch (err) {
+      console.error('Failed to update reservation:', err)
+      throw err
+    }
+  }
+
   return {
     reservations,
     futureReservations,
     fetchReservations,
     addReservation,
     deleteReservation,
+    updateReservation,
   }
 })
