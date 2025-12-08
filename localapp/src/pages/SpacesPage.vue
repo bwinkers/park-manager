@@ -43,7 +43,16 @@
       <div class="col-12 col-md-8">
         <q-card>
           <q-card-section>
-            <div class="text-h6">Spaces</div>
+            <div class="row items-center no-wrap">
+              <div class="col">
+                <div class="text-h6">Spaces</div>
+              </div>
+              <div class="col-auto">
+                <q-btn dense flat icon="mdi-image-multiple" @click="imagesDrawer = true">
+                  <q-tooltip>Show Recent Images</q-tooltip>
+                </q-btn>
+              </div>
+            </div>
           </q-card-section>
           <q-separator />
           <q-card-section>
@@ -56,7 +65,7 @@
           <q-list bordered separator>
             <q-item v-for="space in filteredSpacesWithPhotos" :key="space.id">
               <q-item-section avatar>
-                <img v-if="space.photo?.dataUrl" :src="space.photo.dataUrl" alt="thumb" style="width:64px;height:48px;object-fit:cover;border-radius:4px;border:1px solid #ddd;" />
+                <img v-if="space.photo?.dataUrl" :src="space.photo.dataUrl" alt="thumb" style="width:64px;height:48px;object-fit:cover;border-radius:4px;border:1px solid #ddd;cursor:pointer;" @click="openPreview(space.photo.dataUrl)" />
                 <q-icon v-else name="mdi-image-off" color="grey" />
               </q-item-section>
               <q-item-section>
@@ -109,6 +118,43 @@
     </div>
   </q-page>
   <CameraDialog v-model="cameraActive" @capture="onCaptured" />
+  <q-drawer v-model="imagesDrawer" side="right" overlay :width="360">
+    <q-toolbar>
+      <q-toolbar-title>Recent Images</q-toolbar-title>
+      <q-space />
+      <q-btn dense flat icon="close" @click="imagesDrawer = false" />
+    </q-toolbar>
+    <q-separator />
+    <div class="q-pa-sm">
+      <div class="row q-col-gutter-sm">
+        <div v-for="img in recentImages" :key="img.id" class="col-6">
+          <q-card flat bordered>
+            <q-img :src="img.dataUrl" ratio="4/3" :alt="img.spaceId ? ('Space ' + img.spaceId) : 'Image'" />
+            <q-card-actions align="right">
+              <q-btn dense flat icon="mdi-delete" color="negative" @click="confirmDeleteImage(img)" />
+            </q-card-actions>
+          </q-card>
+        </div>
+        <div v-if="recentImages.length === 0" class="col-12 text-caption text-grey">
+          No recent images.
+        </div>
+      </div>
+    </div>
+  </q-drawer>
+  <q-dialog v-model="previewOpen">
+    <q-card style="max-width: 90vw; max-height: 90vh;">
+      <q-bar>
+        <div class="text-subtitle2">Space Photo</div>
+        <q-space />
+        <q-btn dense flat icon="close" @click="previewOpen = false" />
+      </q-bar>
+      <q-card-section class="q-pa-none">
+        <div class="preview-wrapper">
+          <img :src="previewSrc" class="preview-image" alt="preview" />
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -129,6 +175,9 @@ const formContainer = ref(null)
 const route = useRoute()
 const cameraActive = ref(false)
 const captureSpaceId = ref('')
+const previewOpen = ref(false)
+const previewSrc = ref('')
+const imagesDrawer = ref(false)
 
 const typeOptions = [
   { label: 'Monthly', value: 'monthly' },
@@ -239,6 +288,18 @@ const filteredSpacesWithPhotos = computed(() => {
     const photo = s.photoId ? imagesById.value[s.photoId] || null : null
     return { ...s, photo }
   })
+})
+
+// Last 20 images by createdAt desc
+const recentImages = computed(() => {
+  const byId = imagesById.value || {}
+  const list = Object.values(byId)
+  list.sort((a, b) => {
+    const ad = a.createdAt || ''
+    const bd = b.createdAt || ''
+    return bd.localeCompare(ad)
+  })
+  return list.slice(0, 20)
 })
 
 async function saveSpace() {
@@ -394,4 +455,50 @@ async function onCaptured(dataUrl) {
     cameraActive.value = false
   }
 }
+
+function openPreview(src) {
+  previewSrc.value = src
+  previewOpen.value = true
+}
+
+function confirmDeleteImage(img) {
+  $q.dialog({
+    title: 'Delete Image?',
+    message: img.spaceId ? `Delete image for space ${img.spaceId}?` : 'Delete this image?',
+    cancel: true,
+    persistent: true
+  }).onOk(() => deleteImage(img))
+}
+
+async function deleteImage(img) {
+  try {
+    await db.images.delete(img.id)
+    // Clear photoId on any space that references this image
+    const spaces = spacesStore.spaces || []
+    for (const s of spaces) {
+      if (s.photoId === img.id) {
+        await spacesStore.updateSpace(s.id, { photoId: null })
+      }
+    }
+    $q.notify({ type: 'positive', message: 'Image deleted', position: 'top' })
+  } catch (err) {
+    console.error('Failed to delete image:', err)
+    $q.notify({ type: 'negative', message: 'Failed to delete image: ' + err.message, position: 'top' })
+  }
+}
 </script>
+
+<style scoped>
+.preview-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90vw;
+  height: 80vh;
+  background: #000;
+}
+.preview-image {
+  max-width: 100%;
+  max-height: 100%;
+}
+</style>

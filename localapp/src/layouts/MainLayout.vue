@@ -231,7 +231,14 @@ async function downloadDatabase() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `park-manager-backup-${new Date().toISOString().split('T')[0]}.json`
+    const now = new Date()
+    const pad = (n) => String(n).padStart(2, '0')
+    const y = now.getFullYear()
+    const m = pad(now.getMonth() + 1)
+    const d = pad(now.getDate())
+    const hh = pad(now.getHours())
+    const mm = pad(now.getMinutes())
+    a.download = `park-manager-backup-${y}-${m}-${d}-${hh}${mm}.json`
     a.click()
     URL.revokeObjectURL(url)
     q.notify({ type: 'positive', message: 'Database exported successfully', position: 'top' })

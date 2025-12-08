@@ -4,6 +4,20 @@
 
 		<!-- Reusable Camera dialog component -->
 		<CameraDialog v-model="cameraActive" @capture="onCaptured" />
+		<q-dialog v-model="previewOpen">
+			<q-card style="max-width: 90vw; max-height: 90vh;">
+				<q-bar>
+					<div class="text-subtitle2">Image Preview</div>
+					<q-space />
+					<q-btn dense flat icon="close" @click="previewOpen = false" />
+				</q-bar>
+				<q-card-section class="q-pa-none">
+					<div class="preview-wrapper">
+						<img :src="previewSrc" class="preview-image" alt="preview" />
+					</div>
+				</q-card-section>
+			</q-card>
+		</q-dialog>
 
 		<q-table :rows="spacesView" :columns="columns" row-key="id" flat :grid="isMobile">
 			<!-- Mobile card layout -->
@@ -12,7 +26,7 @@
 					<q-card flat bordered class="q-pa-sm">
 						<div class="row items-start q-gutter-sm">
 							<div class="col-auto">
-								<img v-if="props.row.photo?.dataUrl" :src="props.row.photo.dataUrl" alt="thumb" class="thumb" />
+								<img v-if="props.row.photo?.dataUrl" :src="props.row.photo.dataUrl" alt="thumb" class="thumb cursor-pointer" @click="openPreview(props.row.photo.dataUrl)" />
 								<div v-else class="text-grey">—</div>
 							</div>
 							<div class="col">
@@ -31,7 +45,7 @@
 								<span v-if="readingDisplayDate(props.row.id)">• {{ formatDate(readingDisplayDate(props.row.id)) }}</span>
 							</div>
 							<div class="thumbs q-mt-xs" v-if="thumbsFor(props.row.id).length">
-								<img v-for="img in thumbsFor(props.row.id)" :key="img.id" :src="img.dataUrl" class="thumb" />
+								<img v-for="img in thumbsFor(props.row.id)" :key="img.id" :src="img.dataUrl" class="thumb cursor-pointer" @click="openPreview(img.dataUrl)" />
 							</div>
 							<div class="row q-col-gutter-sm q-mt-xs">
 								<div class="col">
@@ -64,7 +78,7 @@
 			<template #body-cell-photo="props">
 				<q-td :props="props">
 						<div class="col-photo">
-							<img v-if="props.row.photo?.dataUrl" :src="props.row.photo.dataUrl" alt="thumb" class="thumb" />
+							<img v-if="props.row.photo?.dataUrl" :src="props.row.photo.dataUrl" alt="thumb" class="thumb cursor-pointer" @click="openPreview(props.row.photo.dataUrl)" />
 							<span v-else>—</span>
 						</div>
 				</q-td>
@@ -79,7 +93,7 @@
 							<span v-if="readingDisplayDate(props.row.id)">• {{ formatDate(readingDisplayDate(props.row.id)) }}</span>
 						</div>
 						<div class="thumbs q-mt-xs" v-if="thumbsFor(props.row.id).length">
-							<img v-for="img in thumbsFor(props.row.id)" :key="img.id" :src="img.dataUrl" class="thumb" />
+							<img v-for="img in thumbsFor(props.row.id)" :key="img.id" :src="img.dataUrl" class="thumb cursor-pointer" @click="openPreview(img.dataUrl)" />
 						</div>
 						<div class="q-mt-xs row q-col-gutter-sm">
 							<div class="col">
@@ -128,6 +142,8 @@ const isMobile = computed(() => $q.screen.lt.md)
 const spacesStore = useSpacesStore()
 const tenantsStore = useTenantsStore()
 const meterStore = useMeterReadingsStore()
+const previewOpen = ref(false)
+const previewSrc = ref('')
 
 // Per-space input and photos state - last saved readings map
 const lastReadingsBySpace = computed(() => {
@@ -405,6 +421,11 @@ function onCaptured(dataUrl) {
 	pendingPhotosBySpace.value[sid] = [...arr, dataUrl]
 }
 
+function openPreview(src) {
+	previewSrc.value = src
+	previewOpen.value = true
+}
+
 async function saveReading(spaceId) {
 	try {
 		const sid = String(spaceId)
@@ -455,4 +476,6 @@ async function saveReading(spaceId) {
 .thumb { width: 64px; height: 48px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; }
 .thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .hidden { display: none; }
+.preview-wrapper { display:flex; align-items:center; justify-content:center; width:90vw; height:80vh; background:#000; }
+.preview-image { max-width:100%; max-height:100%; }
 </style>
