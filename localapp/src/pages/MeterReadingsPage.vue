@@ -19,111 +19,56 @@
 			</q-card>
 		</q-dialog>
 
-		<q-table :rows="spacesView" :columns="columns" row-key="id" flat :grid="isMobile">
-			<!-- Mobile card layout -->
-			<template #item="props">
-				<div class="q-pa-xs col-12">
-					<q-card flat bordered class="q-pa-sm">
-						<div class="row items-start q-gutter-sm">
-							<div class="col-auto">
-								<img v-if="props.row.photo?.dataUrl" :src="props.row.photo.dataUrl" alt="thumb" class="thumb cursor-pointer" @click="openPreview(props.row.photo.dataUrl)" />
-								<div v-else class="text-grey">—</div>
-							</div>
-							<div class="col">
-								<div class="text-subtitle2">{{ props.row.id }}</div>
-								<div class="text-caption">
-									<router-link v-if="props.row.tenantId" :to="{ name: 'tenants', query: { id: props.row.tenantId } }">
-										{{ props.row.tenantName }}
-									</router-link>
-									<span v-else>—</span>
-								</div>
+		<div class="row q-col-gutter-sm">
+			<div class="col-12" v-for="space in spacesView" :key="space.id">
+				<q-card flat bordered class="q-pa-sm">
+					<div class="row items-start q-gutter-sm">
+						<div class="col-auto">
+							<img v-if="space.photo?.dataUrl" :src="space.photo.dataUrl" alt="thumb" class="thumb cursor-pointer" @click="openPreview(space.photo.dataUrl)" />
+							<div v-else class="text-grey">—</div>
+						</div>
+						<div class="col">
+							<div class="text-subtitle2">{{ space.id }}</div>
+							<div class="text-caption">
+								<router-link v-if="space.tenantId" :to="{ name: 'tenants', query: { id: space.tenantId } }">
+									{{ space.tenantName }}
+								</router-link>
+								<span v-else>—</span>
 							</div>
 						</div>
-						<div class="q-mt-sm">
-							<q-input v-model="readingsBySpace[props.row.id]" dense outlined placeholder="1–6 digits" :maxlength="6" inputmode="numeric" :disable="!isNewBySpace[props.row.id]" />
-							<div class="text-caption q-mt-xs">
-								<span v-if="readingDisplayDate(props.row.id)">• {{ formatDate(readingDisplayDate(props.row.id)) }}</span>
-							</div>
-							<div class="thumbs q-mt-xs" v-if="thumbsFor(props.row.id).length">
-								<img v-for="img in thumbsFor(props.row.id)" :key="img.id" :src="img.dataUrl" class="thumb cursor-pointer" @click="openPreview(img.dataUrl)" />
-							</div>
-							<div class="row q-col-gutter-sm q-mt-xs">
-								<div class="col">
-									<q-input v-model="notesBySpace[props.row.id]" dense outlined placeholder="Notes (optional)" :disable="!isNewBySpace[props.row.id]" />
-								</div>
-							</div>
-						</div>
-						<div class="row q-gutter-sm q-mt-sm">
-							<q-btn v-if="isNewBySpace[props.row.id]" dense color="primary" label="Photos" @click="openCameraFor(props.row.id)" />
-							<q-btn dense color="secondary" label="New" v-if="!isNewBySpace[props.row.id]" @click="startNewEntry(props.row.id)" />
-							<q-btn v-if="isNewBySpace[props.row.id]" dense color="positive" :disable="!isValidReading(props.row.id)" label="Save" @click="saveReading(props.row.id)" />
-							<q-btn dense flat color="negative" label="Cancel" v-if="isNewBySpace[props.row.id]" @click="cancelNewEntry(props.row.id)" />
-						</div>
-
-						<div v-if="(pendingPhotosBySpace[props.row.id] || []).length" class="text-caption q-mt-xs">
-							{{ (pendingPhotosBySpace[props.row.id] || []).length }} photo(s) ready
-						</div>
-					</q-card>
-				</div>
-			</template>
-			<template #body-cell-tenant="props">
-				<q-td :props="props">
-					<router-link v-if="props.row.tenantId" :to="{ name: 'tenants', query: { id: props.row.tenantId } }">
-						{{ props.row.tenantName }}
-					</router-link>
-					<span v-else>—</span>
-				</q-td>
-			</template>
-
-			<template #body-cell-photo="props">
-				<q-td :props="props">
-						<div class="col-photo">
-							<img v-if="props.row.photo?.dataUrl" :src="props.row.photo.dataUrl" alt="thumb" class="thumb cursor-pointer" @click="openPreview(props.row.photo.dataUrl)" />
-							<span v-else>—</span>
-						</div>
-				</q-td>
-			</template>
-
-			<template #body-cell-reading="props">
-				<q-td :props="props">
-					<div class="col-reading">
-						<q-input v-model="readingsBySpace[props.row.id]" dense outlined placeholder="1–6 digits" :maxlength="6"
-										 inputmode="numeric" style="max-width: 140px" :disable="!isNewBySpace[props.row.id]" />
+					</div>
+					<div class="q-mt-sm">
+						<q-input v-model="readingsBySpace[space.id]" dense outlined placeholder="1–6 digits" :maxlength="6" inputmode="numeric" :disable="!isNewBySpace[space.id]" />
 						<div class="text-caption q-mt-xs">
-							<span v-if="readingDisplayDate(props.row.id)">• {{ formatDate(readingDisplayDate(props.row.id)) }}</span>
+							<span v-if="readingDisplayDate(space.id)">• {{ formatDate(readingDisplayDate(space.id)) }}</span>
 						</div>
-						<div class="thumbs q-mt-xs" v-if="thumbsFor(props.row.id).length">
-							<img v-for="img in thumbsFor(props.row.id)" :key="img.id" :src="img.dataUrl" class="thumb cursor-pointer" @click="openPreview(img.dataUrl)" />
+						<div class="thumbs q-mt-xs" v-if="thumbsFor(space.id).length">
+							<img v-for="img in thumbsFor(space.id)" :key="img.id" :src="img.dataUrl" class="thumb cursor-pointer" @click="openPreview(img.dataUrl)" />
 						</div>
-						<div class="q-mt-xs row q-col-gutter-sm">
+						<div class="row q-col-gutter-sm q-mt-xs">
 							<div class="col">
-								<q-input v-model="notesBySpace[props.row.id]" dense outlined placeholder="Notes (optional)" :disable="!isNewBySpace[props.row.id]" />
+								<q-input v-model="notesBySpace[space.id]" dense outlined placeholder="Notes (optional)" :disable="!isNewBySpace[space.id]" />
 							</div>
 						</div>
-						<div v-if="isRowLoading(props.row.id)" class="q-mt-xs row items-center q-gutter-xs">
-							<q-spinner size="12px" color="grey" />
-							<span class="text-caption text-grey">Loading last reading…</span>
-						</div>
-
-						<div class="row q-gutter-sm q-mt-sm">
-							<q-btn dense color="secondary" label="New" v-if="!isNewBySpace[props.row.id]" @click="startNewEntry(props.row.id)" />
-							<q-btn v-if="isNewBySpace[props.row.id]" dense color="primary" label="Photos" @click="openCameraFor(props.row.id)" />
-							<q-btn v-if="isNewBySpace[props.row.id]" dense color="positive" :disable="!isValidReading(props.row.id)" label="Save" @click="saveReading(props.row.id)" />
-							<q-btn dense flat color="negative" label="Cancel" v-if="isNewBySpace[props.row.id]" @click="cancelNewEntry(props.row.id)" />
-						</div>
 					</div>
-				</q-td>
-			</template>
-
-			<template #body-cell-actions="props">
-				<q-td :props="props">
-					<!-- Photos button moved to reading action row; no separate actions here -->
-					<div v-if="(pendingPhotosBySpace[props.row.id] || []).length" class="text-caption q-mt-xs">
-						{{ (pendingPhotosBySpace[props.row.id] || []).length }} photo(s) ready
+					<div v-if="isRowLoading(space.id)" class="q-mt-xs row items-center q-gutter-xs">
+						<q-spinner size="12px" color="grey" />
+						<span class="text-caption text-grey">Loading last reading…</span>
 					</div>
-				</q-td>
-			</template>
-		</q-table>
+
+					<div class="row q-gutter-sm q-mt-sm">
+						<q-btn dense color="secondary" label="New" v-if="!isNewBySpace[space.id]" @click="startNewEntry(space.id)" />
+						<q-btn v-if="isNewBySpace[space.id]" dense color="primary" label="Photos" @click="openCameraFor(space.id)" />
+						<q-btn v-if="isNewBySpace[space.id]" dense color="positive" :disable="!isValidReading(space.id)" label="Save" @click="saveReading(space.id)" />
+						<q-btn dense flat color="negative" label="Cancel" v-if="isNewBySpace[space.id]" @click="cancelNewEntry(space.id)" />
+					</div>
+
+					<div v-if="(pendingPhotosBySpace[space.id] || []).length" class="text-caption q-mt-xs">
+						{{ (pendingPhotosBySpace[space.id] || []).length }} photo(s) ready
+					</div>
+				</q-card>
+			</div>
+		</div>
 	</q-page>
 </template>
 
@@ -138,7 +83,7 @@ import { useTenantsStore } from 'src/stores/tenantsStore'
 import { useMeterReadingsStore } from 'src/stores/meterReadingsStore'
 
 const $q = useQuasar()
-const isMobile = computed(() => $q.screen.lt.md)
+// no longer using QTable grid; keep screen for future enhancements if needed
 const spacesStore = useSpacesStore()
 const tenantsStore = useTenantsStore()
 const meterStore = useMeterReadingsStore()
@@ -203,13 +148,7 @@ watch(() => spacesStore.sortedSpaces, () => {
 }, { deep: true })
 
 // Columns for QTable
-const columns = [
-	{ name: 'id', label: 'Space', field: 'id', align: 'left' },
-	{ name: 'tenant', label: 'Tenant', field: 'tenantName', align: 'left' },
-	{ name: 'photo', label: 'Photo', field: 'photo', align: 'left' },
-	{ name: 'reading', label: 'Reading', field: 'reading', align: 'left' },
-	{ name: 'actions', label: '', field: 'actions', align: 'left' }
-]
+// columns removed with card layout
 
 // Live images map for lookup by id
 const imagesById = ref({})
