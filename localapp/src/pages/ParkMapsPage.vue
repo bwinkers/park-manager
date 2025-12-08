@@ -10,11 +10,11 @@
 
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="park">
-          <q-img src="/imgs/ParkMap.svg" alt="Park Map" style="max-width: 800px;" />
+          <q-img src="/imgs/Spaceport-RV-Park-Map-light.svg" alt="Park Map" style="max-width: 800px;" />
         </q-tab-panel>
 
         <q-tab-panel name="tenant">
-          <q-img src="/imgs/TenantParkMap.webp" alt="Tenant Map" style="max-width: 800px;" />
+          <q-img src="" alt="Tenant Map" style="max-width: 800px;" />
         </q-tab-panel>
       </q-tab-panels>
 

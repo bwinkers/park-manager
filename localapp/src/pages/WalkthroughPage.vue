@@ -1,6 +1,8 @@
 <template>
   <div class="walkthrough-page">
-    <h1>Spaces</h1>
+    <div class="controls-bar">
+      <input class="search" v-model="searchText" type="search" placeholder="Search spaces or tenants" />
+    </div>
     <div v-if="cameraActive" class="camera-panel">
       <div class="row-controls">
         <div>Capturing for Space: <strong>{{ captureSpaceId }}</strong></div>
@@ -17,38 +19,40 @@
         <img :src="capturedDataUrl" alt="Captured preview" />
       </div>
     </div>
-    <table class="spaces-table">
-      <thead>
-        <tr>
-          <th>Space</th>
-          <th>Tenant</th>
-          <th>Photo</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="space in spacesView" :key="space.id">
-          <td>{{ space.id }}</td>
-          <td>
-            <router-link v-if="space.tenantId" :to="{ name: 'tenants', query: { id: space.tenantId } }">
-              {{ space.tenantName }}
-            </router-link>
-            <span v-else>—</span>
-          </td>
-          <td>
-            <img v-if="space.photo?.dataUrl" :src="space.photo.dataUrl" alt="thumb" class="thumb" />
-            <span v-else>—</span>
-          </td>
-          <td>
-            <button @click="openMaintenanceRequest(space.id)">
-              Maintenance Request
-            </button>
-            <button class="btn" @click="startCameraForSpace(space.id)">Take Photo</button>
-            <button class="btn" @click="openHistory(space.id)">History</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="cards-wrapper">
+      <div v-for="space in filteredSpaces" :key="space.id" class="col-12">
+        <q-card flat bordered class="q-mb-sm q-pa-sm">
+          <div class="row items-start q-gutter-sm">
+            <div class="col-auto">
+              <img v-if="space.photo?.dataUrl" :src="space.photo.dataUrl" alt="thumb" class="thumb cursor-pointer" @click="openPreview(space.photo.dataUrl)" />
+              <q-icon v-else name="mdi-image-off" color="grey" />
+            </div>
+            <div class="col">
+              <div class="text-subtitle2">
+                <router-link :to="{ name: 'spaces', query: { id: space.id } }">{{ space.id }}</router-link>
+              </div>
+              <div class="text-caption">
+                <router-link v-if="space.tenantId" :to="{ name: 'tenants', query: { id: space.tenantId } }">
+                  {{ space.tenantName || 'Tenant' }}
+                </router-link>
+                <span v-else>—</span>
+              </div>
+            </div>
+          </div>
+          <div class="row q-gutter-sm q-mt-sm">
+            <q-btn dense color="primary" icon="mdi-wrench" @click="openMaintenanceRequest(space.id)">
+              <q-tooltip>Maintenance</q-tooltip>
+            </q-btn>
+            <q-btn dense color="secondary" icon="mdi-camera" @click="startCameraForSpace(space.id)">
+              <q-tooltip>Take Photo</q-tooltip>
+            </q-btn>
+            <q-btn dense flat color="grey" icon="mdi-history" @click="openHistory(space.id)">
+              <q-tooltip>History</q-tooltip>
+            </q-btn>
+          </div>
+        </q-card>
+      </div>
+    </div>
 
     <!-- History Drawer -->
     <div v-if="historyOpen" class="history-backdrop" @click="closeHistory"></div>
@@ -73,6 +77,20 @@
       </div>
     </div>
   </div>
+  <q-dialog v-model="previewOpen">
+    <q-card style="max-width: 90vw; max-height: 90vh;">
+      <q-bar>
+        <div class="text-subtitle2">Image Preview</div>
+        <q-space />
+        <q-btn dense flat icon="close" @click="previewOpen = false" />
+      </q-bar>
+      <q-card-section class="q-pa-none">
+        <div class="preview-wrapper">
+          <img :src="previewSrc" class="preview-image" alt="preview" />
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -104,6 +122,16 @@ const spacesView = computed(() => {
     const photo = s.photoId ? imagesById.value[s.photoId] || null : null
     return { id: s.id, tenantId: s.tenantId || null, tenantName: name, photo }
   })
+})
+
+const searchText = ref('')
+const filteredSpaces = computed(() => {
+  const q = (searchText.value || '').toLowerCase().trim()
+  if (!q) return spacesView.value
+  return (spacesView.value || []).filter(s =>
+    (s.id || '').toString().toLowerCase().includes(q) ||
+    (s.tenantName || '').toLowerCase().includes(q)
+  )
 })
 // Live images map by id for quick lookup of thumbnails
 const imagesById = ref({})
@@ -161,6 +189,8 @@ const photoNote = ref('')
 const historyOpen = ref(false)
 const historySpaceId = ref('')
 const historyImages = ref([])
+const previewOpen = ref(false)
+const previewSrc = ref('')
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -234,6 +264,11 @@ async function deleteImage(imgId) {
   } catch (err) {
     console.error('Failed to delete image:', err)
   }
+}
+
+function openPreview(src) {
+  previewSrc.value = src
+  previewOpen.value = true
 }
 
 async function startCameraForSpace(spaceId) {
@@ -344,6 +379,8 @@ async function saveCapturedPhoto() {
 .walkthrough-page {
   padding: 20px;
 }
+.controls-bar { display:flex; gap:8px; align-items:center; margin: 8px 0 12px; }
+.search { flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
 .camera-panel {
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -403,6 +440,8 @@ a.history-link { cursor: pointer; }
   padding: 12px;
   z-index: 1000;
 }
+.preview-wrapper { display:flex; align-items:center; justify-content:center; width:90vw; height:80vh; background:#000; }
+.preview-image { max-width:100%; max-height:100%; }
 .history-header {
   display: flex;
   align-items: center;
@@ -428,6 +467,8 @@ a.history-link { cursor: pointer; }
   margin-top: 20px;
 }
 
+.table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
 .spaces-table th,
 .spaces-table td {
   border: 1px solid #ddd;
@@ -439,6 +480,8 @@ a.history-link { cursor: pointer; }
   background-color: #f5f5f5;
   font-weight: 600;
 }
+
+.actions-cell { white-space: nowrap; }
 
 button {
   padding: 8px 12px;
@@ -460,5 +503,23 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+  .walkthrough-page { padding: 12px; }
+  .row-controls { flex-wrap: wrap; }
+  .note { min-width: 180px; }
+  .btn { padding: 10px 14px; font-size: 14px; }
+  .spaces-table th, .spaces-table td { padding: 10px; }
+  .actions-cell { display: flex; gap: 8px; flex-wrap: wrap; }
+  .video { max-height: 220px; }
+  .preview img { max-height: 200px; }
+  .history-drawer { width: 100vw; }
+  .history-grid { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 900px) {
+  .history-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
