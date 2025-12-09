@@ -173,6 +173,24 @@ const linksList = [
     link: '/rental-application',
   },
   {
+    title: 'Rental Agreement',
+    caption: 'Lease terms and signatures',
+    icon: 'mdi-file-document-outline',
+    link: '/rental-agreement',
+  },
+  {
+    title: 'Rental Rules',
+    caption: 'Community rules and standards',
+    icon: 'mdi-script-text-outline',
+    link: '/rental-rules',
+  },
+  {
+    title: 'Disaster Plan',
+    caption: 'Emergency preparedness and response',
+    icon: 'mdi-alert-decagram-outline',
+    link: '/disaster-plan',
+  },
+  {
     title: 'Walkthrough',
     caption: 'Perform a park walkthrough',
     icon: 'mdi-walk',
