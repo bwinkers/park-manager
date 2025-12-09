@@ -16,7 +16,29 @@
       <q-list>
         <q-item-label header> Manager Links </q-item-label>
 
-        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
+        <q-expansion-item class="top-expansion" icon="mdi-desk" label="Frontdesk" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in frontdeskLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
+
+        <q-expansion-item class="top-expansion" icon="mdi-briefcase" label="Backoffice" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in backofficeLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
+
+        <q-expansion-item class="top-expansion" icon="mdi-account-tie" label="Manager" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in managerLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
+
+        <q-expansion-item class="top-expansion" icon="mdi-file-document" label="Forms" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in formsLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
+
+        <q-expansion-item class="top-expansion" icon="mdi-tools" label="Maintenance" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in maintenanceLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
+
+        <q-expansion-item class="top-expansion" icon="mdi-account" label="Tenant" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in tenantLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
       </q-list>
 
       <q-separator />
@@ -67,43 +89,13 @@ import { useMeterReadingsStore } from 'src/stores/meterReadingsStore'
 
 const q = useQuasar()
 
-const linksList = [
-
-  // {
-  //   title: 'Tenants',
-  //   caption: 'List of tenants',
-  //   icon: 'mdi-account',
-  //   link: '/tenants',
-  // },
-  // {
-  //   title: 'Leases',
-  //   caption: 'Manage leases',
-  //   icon: 'mdi-file-sign',
-  //   link: '/leases',
-  // },
-  // {
-  //   title: 'Overnights',
-  //   caption: 'Record overnight stays',
-  //   icon: 'mdi-bed',
-  //   link: '/overnights',
-  // },
+// Grouped essential links
+const frontdeskLinks = [
   {
     title: 'Payments',
     caption: 'Record incoming payments',
     icon: 'mdi-cash-plus',
     link: '/payments',
-  },
-  {
-    title: 'Petty Cash',
-    caption: 'Manage petty cash',
-    icon: 'mdi-cash-minus',
-    link: '/petty-cash',
-  },
-  {
-    title: 'Reports',
-    caption: 'Daily, monthly and deposit reports',
-    icon: 'mdi-list-box',
-    link: '/reports',
   },
   {
     title: 'Reservations',
@@ -117,22 +109,100 @@ const linksList = [
     icon: 'mdi-timer-sand',
     link: '/wait-list',
   },
-  // {
-  //   title: 'Overnights',
-  //   caption: 'Manage overnight stays',
-  //   icon: 'mdi-bed',
-  //   link: '/overnights',
-  // },
-  // {
-  //   title: 'Weeklys',
-  //   caption: 'Manage weekly stays',
-  //   icon: 'mdi-calendar-week',
-  //   link: '/weeklys',
-  // },
-  // {
-  //   title: 'Storage Units',
-  //   caption: 'Parking / storages spaces',
-  //   icon: 'mdi-parking',
+]
+
+const backofficeLinks = [
+  {
+    title: 'Petty Cash',
+    caption: 'Manage petty cash',
+    icon: 'mdi-cash-minus',
+    link: '/petty-cash',
+  },
+  {
+    title: 'Reports',
+    caption: 'Daily, monthly and deposit reports',
+    icon: 'mdi-list-box',
+    link: '/reports',
+  },
+  {
+    title: 'Spaces',
+    caption: 'Manage RV spaces',
+    icon: 'mdi-rv-truck',
+    link: '/spaces',
+  },
+  {
+    title: 'Tenants',
+    caption: 'Manage tenants',
+    icon: 'mdi-account',
+    link: '/tenants',
+  },
+]
+
+const managerLinks = [
+  {
+    title: 'Walkthrough',
+    caption: 'Perform a park walkthrough',
+    icon: 'mdi-walk',
+    link: '/walkthrough',
+  },
+  {
+    title: 'Meter Readings',
+    caption: 'Record meter readings',
+    icon: 'mdi-counter',
+    link: '/meter-readings',
+  },
+  {
+    title: 'Park Map',
+    caption: 'Location of spaces and amenities',
+    icon: 'mdi-map',
+    link: '/park-maps',
+  },
+]
+
+const formsLinks = [
+    {
+      title: 'Rental Application',
+      caption: 'You must pass a background check',
+      icon: 'mdi-script-text',
+      link: '/rental-application',
+    },
+    {
+      title: 'Rental Agreement',
+      caption: 'Lease terms and signatures',
+      icon: 'mdi-file-document-outline',
+      link: '/rental-agreement',
+    },
+    {
+      title: 'Rental Rules',
+      caption: 'Community rules and standards',
+      icon: 'mdi-script-text-outline',
+      link: '/rental-rules',
+    },
+    {
+      title: 'Disaster Plan',
+      caption: 'Emergency preparedness and response',
+      icon: 'mdi-alert-decagram-outline',
+      link: '/disaster-plan',
+    },
+]
+
+const tenantLinks = [
+    {
+      title: 'Electric Usage',
+      caption: 'View meter photos and values',
+      icon: 'mdi-flash',
+      link: '/electric-usage',
+    },
+]
+
+const maintenanceLinks = [
+  {
+    title: 'Maintenance Requests',
+    caption: 'Record maintenance requests',
+    icon: 'mdi-wrench',
+    link: '/maintenance-requests',
+  },
+]
   //   link: '/storage',
   // },
   // {
@@ -147,81 +217,6 @@ const linksList = [
   //   icon: 'mdi-credit-card',
   //   link: '/payments',
   // },
-
-  {
-    title: 'Spaces',
-    caption: 'Manage RV spaces',
-    icon: 'mdi-rv-truck',
-    link: '/spaces',
-  },
-  {
-    title: 'Tenants',
-    caption: 'Manage tenants',
-    icon: 'mdi-account',
-    link: '/tenants',
-  },
-  {
-    title: 'Maintenance Requests',
-    caption: 'Record maintenance requests',
-    icon: 'mdi-wrench',
-    link: '/maintenance-requests',
-  },
-  {
-    title: 'Rental Application',
-    caption: 'You must pass a background check',
-    icon: 'mdi-script-text',
-    link: '/rental-application',
-  },
-  {
-    title: 'Rental Agreement',
-    caption: 'Lease terms and signatures',
-    icon: 'mdi-file-document-outline',
-    link: '/rental-agreement',
-  },
-  {
-    title: 'Rental Rules',
-    caption: 'Community rules and standards',
-    icon: 'mdi-script-text-outline',
-    link: '/rental-rules',
-  },
-  {
-    title: 'Disaster Plan',
-    caption: 'Emergency preparedness and response',
-    icon: 'mdi-alert-decagram-outline',
-    link: '/disaster-plan',
-  },
-  {
-    title: 'Walkthrough',
-    caption: 'Perform a park walkthrough',
-    icon: 'mdi-walk',
-    link: '/walkthrough',
-  },
-    {
-    title: 'Meter Readings',
-    caption: 'Record meter readings',
-    icon: 'mdi-counter',
-    link: '/meter-readings',
-  },
-  {
-    title: 'Electric Usage',
-    caption: 'View meter photos and values',
-    icon: 'mdi-flash',
-    link: '/electric-usage',
-  },
-  // {
-  //   title: 'Deposits',
-  //   caption: 'Record deposits',
-  //   icon: 'mdi-bank',
-  //   link: '/deposits',
-  // },
-  {
-    title: 'Park Map',
-    caption: 'Location of spaces and amenities',
-    icon: 'mdi-map',
-    link: '/park-maps',
-  },
-
-]
 
 const leftDrawerOpen = ref(false)
 const fileInput = ref(null)
@@ -359,3 +354,31 @@ async function uploadDatabase(event) {
   })
 }
 </script>
+
+<style scoped>
+.top-group {
+  font-weight: 600;
+  color: var(--q-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.group-content {
+  border-left: 2px solid rgba(0,0,0,0.1);
+  margin-left: 8px;
+  padding-left: 4px;
+}
+
+/* Highlight expanded top-level groups */
+:deep(.top-expansion.q-expansion-item--expanded) .q-item {
+  background: rgba(0, 123, 255, 0.08);
+  border-left: 3px solid var(--q-primary);
+}
+
+/* Always emphasize top-level headers */
+:deep(.top-expansion .q-item) {
+  background: rgba(0,0,0,0.03);
+}
+:deep(.top-expansion .q-item__section--avatar .q-icon) {
+  color: var(--q-primary);
+}
+</style>
