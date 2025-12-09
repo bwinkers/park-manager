@@ -32,6 +32,16 @@
           <EssentialLink v-for="link in formsLinks" :key="link.title" v-bind="link" />
         </q-expansion-item>
 
+
+
+        <q-expansion-item class="top-expansion" icon="mdi-tools" label="Maintenance" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in maintenanceLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
+
+        <q-expansion-item class="top-expansion" icon="mdi-account" label="Tenant" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <EssentialLink v-for="link in tenantLinks" :key="link.title" v-bind="link" />
+        </q-expansion-item>
+
         <q-expansion-item class="top-expansion db-group" icon="mdi-database" label="Database" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
           <q-item clickable @click="downloadDatabase">
             <q-item-section avatar>
@@ -55,14 +65,6 @@
         </q-expansion-item>
 
         <div style="height: 24px"></div>
-
-        <q-expansion-item class="top-expansion" icon="mdi-tools" label="Maintenance" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
-          <EssentialLink v-for="link in maintenanceLinks" :key="link.title" v-bind="link" />
-        </q-expansion-item>
-
-        <q-expansion-item class="top-expansion" icon="mdi-account" label="Tenant" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
-          <EssentialLink v-for="link in tenantLinks" :key="link.title" v-bind="link" />
-        </q-expansion-item>
       </q-list>
 
 
