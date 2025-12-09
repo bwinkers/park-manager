@@ -32,6 +32,30 @@
           <EssentialLink v-for="link in formsLinks" :key="link.title" v-bind="link" />
         </q-expansion-item>
 
+        <q-expansion-item class="top-expansion db-group" icon="mdi-database" label="Database" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
+          <q-item clickable @click="downloadDatabase">
+            <q-item-section avatar>
+              <q-icon name="mdi-download" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Download Backup</q-item-label>
+              <q-item-label caption>Export all data as JSON</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable @click="triggerUpload">
+            <q-item-section avatar>
+              <q-icon name="mdi-upload" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Upload Backup</q-item-label>
+              <q-item-label caption>Import data from JSON</q-item-label>
+            </q-item-section>
+          </q-item>
+          <input ref="fileInput" type="file" accept=".json" style="display:none" @change="uploadDatabase" />
+        </q-expansion-item>
+
+        <div style="height: 24px"></div>
+
         <q-expansion-item class="top-expansion" icon="mdi-tools" label="Maintenance" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
           <EssentialLink v-for="link in maintenanceLinks" :key="link.title" v-bind="link" />
         </q-expansion-item>
@@ -41,30 +65,7 @@
         </q-expansion-item>
       </q-list>
 
-      <q-separator />
 
-      <q-list>
-        <q-item-label header> Database </q-item-label>
-        <q-item clickable @click="downloadDatabase">
-          <q-item-section avatar>
-            <q-icon name="mdi-download" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Download Backup</q-item-label>
-            <q-item-label caption>Export all data as JSON</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable @click="triggerUpload">
-          <q-item-section avatar>
-            <q-icon name="mdi-upload" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Upload Backup</q-item-label>
-            <q-item-label caption>Import data from JSON</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-      <input ref="fileInput" type="file" accept=".json" style="display:none" @change="uploadDatabase" />
     </q-drawer>
 
     <q-page-container>
@@ -380,5 +381,9 @@ async function uploadDatabase(event) {
 }
 :deep(.top-expansion .q-item__section--avatar .q-icon) {
   color: var(--q-primary);
+}
+
+.db-group {
+  margin-top: 8px;
 }
 </style>
