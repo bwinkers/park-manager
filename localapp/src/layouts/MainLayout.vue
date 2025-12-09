@@ -14,7 +14,7 @@
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> Manager Links </q-item-label>
+        <q-item-label header> My RV Park </q-item-label>
 
         <q-expansion-item class="top-expansion" icon="mdi-desk" label="Frontdesk" group="essential" expand-separator header-class="top-group" content-class="group-content" dense expand-icon="mdi-chevron-down" switch-toggle-side>
           <EssentialLink v-for="link in frontdeskLinks" :key="link.title" v-bind="link" />
