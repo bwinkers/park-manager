@@ -1,0 +1,91 @@
+version: '3.9'
+
+services:
+  keydb:
+    image: eqalpha/keydb
+    container_name: keydb
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./keydb/data:/data
+
+  lldap:
+    image: lldap/lldap:latest
+    container_name: lldap
+    restart: unless-stopped
+    environment:
+      - LLDAP_JWT_SECRET_FILE=/run/secrets/lldap_jwt_secret
+
+
+
+      - LLDAP_LDAP_USER_PASS=admin
+      - LLDAP_LDAP_USER_DN=cn=admin,dc=example,dc=org
+    volumes:
+      - ./lldap/data:/data
+      - ./lldap/config:/config
+    ports:
+      - "389:389"
+      - "17170:17170"
+
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    restart: unless-stopped
+    depends_on:
+      - keydb
+      - lldap
+    environment:
+      - AUTHELIA_CONFIG_PATH=/config/configuration.yml
+    volumes:
+      - ./authelia/config:/config
+      - ./authelia/data:/data
+      - ./authelia/config/authelia_session_secret:/run/secrets/authelia_session_secret:ro
+      - ./authelia/config/authelia_ldap_password:/run/secrets/authelia_ldap_password:ro
+      - ./authelia/config/authelia_ldap_user:/run/secrets/authelia_ldap_user:ro
+      - ./authelia/config/authelia_pg_username:/run/secrets/authelia_pg_username:ro
+      - ./authelia/config/authelia_pg_password:/run/secrets/authelia_pg_password:ro
+      - ./authelia/config/authelia_redis_password:/run/secrets/authelia_redis_password:ro
+    ports:
+      - "9091:9091"
+
+  smtp4dev:
+    image: rnwood/smtp4dev
+    container_name: smtp4dev
+    restart: unless-stopped
+    ports:
+      - "3001:80"   # Web UI
+      - "2525:25"   # SMTP
+    volumes:
+      - ./smtp4dev/data:/smtp4dev
+
+  api:
+    build: ./api
+    container_name: api
+    restart: unless-stopped
+    volumes:
+      - ./api:/usr/src/app
+    working_dir: /usr/src/app
+    command: ["node", "app.js"]
+    ports:
+      - "3000:3000"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    depends_on:
+      - authelia
+      - lldap
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/data:/data
+      - ./caddy/config:/config
+
+networks:
+  default:
+    name: myrvpark

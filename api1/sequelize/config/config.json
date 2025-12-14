@@ -1,0 +1,22 @@
+{
+  "development": {
+    "dialect": "sqlite",
+    "storage": "./dev.sqlite"
+  },
+  "test": {
+    "username": "park_manager",
+    "password": "password123",
+    "database": "park_manager_test",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "park_manager",
+    "password": "password123",
+    "database": "park_manager",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres"
+  }
+}

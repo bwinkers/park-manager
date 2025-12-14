@@ -169,6 +169,12 @@ const formsLinks = [
       icon: 'mdi-script-text',
       link: '/rental-application',
     },
+  {
+    title: 'Lease',
+    caption: 'Legacy lease page (read-only)',
+    icon: 'mdi-file-document-edit-outline',
+    link: '/lease',
+  },
     {
       title: 'Rental Agreement',
       caption: 'Lease terms and signatures',

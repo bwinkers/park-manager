@@ -1,0 +1,60 @@
+# Example Authelia configuration
+server:
+  host: 0.0.0.0
+  port: 9091
+
+log:
+  level: info
+
+session:
+  name: authelia_session
+  # secret: "${AUTHELIA_SESSION_SECRET}"
+  secret_file: /run/secrets/authelia_session_secret
+  expiration: 1h
+  inactivity: 5m
+  domain: myrvpark.space
+  redis:
+    host: keydb
+    port: 6379
+    database_index: 0
+    password_file: /run/secrets/authelia_redis_password
+
+authentication_backend:
+  ldap:
+    url: ldap://lldap:389
+    user_file: /run/secrets/authelia_ldap_user
+    password_file: /run/secrets/authelia_ldap_password
+    base_dn: dc=example,dc=org
+    additional_users_dn: ""
+    users_filter: "(uid={0})"
+    groups_filter: "(member={dn})"
+    group_name_attribute: cn
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: api.myrvpark.space
+      policy: one_factor
+    - domain: auth.myrvpark.space
+      policy: bypass
+    - domain: ldap.myrvpark.space
+      policy: bypass
+
+storage:
+  postgres:
+    host: host.docker.internal
+    port: 5432
+    database: authelia
+    schema: public
+    username_file: /run/secrets/authelia_pg_username
+    password_file: /run/secrets/authelia_pg_password
+    timeout: 5s
+
+notifier:
+  smtp:
+    host: smtp4dev
+    port: 25
+    sender: "noreply@myrvpark.space"
+    subject: "[MyRVPark] {title}"
+    startup_check_address: "test@myrvpark.space"
+    disable_require_tls: true

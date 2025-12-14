@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: parkmanager_postgres
+    environment:
+      POSTGRES_USER: parkuser
+      POSTGRES_PASSWORD: parkpass
+      POSTGRES_DB: parkdb
+    ports:
+      - "5555:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    container_name: parkmanager_smtp4dev
+    ports:
+      - "3030:80"     # Web UI
+      - "2525:25"     # SMTP
+
+volumes:
+  postgres_data:

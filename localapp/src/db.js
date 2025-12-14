@@ -99,7 +99,7 @@ db.version(26).stores({
   });
 });
 // Version 27 adds storageRate (whole dollars), defaulting to null
-db.version(27).stores({
+db.version(28).stores({
   tenants: '++id, firstName, lastName, phone, autocharge, email, active, notes',
   spaces: 'id, tenantId, type, length, electric, metered, hasWater, hasSewer, weeklyRate, storageRate, notes',
   leases: '++id, tenantId, spaceId, startDate, endDate, rentalType, rate, isDelinquent, notes',
@@ -112,7 +112,7 @@ db.version(27).stores({
   pettyCash: '++id, amount, disbursedDate, paidTo, submittedBy, paidFor, receiptDate, disbursedBy, isCredit, notes',
   waitList: '$$id, name, phone, email, rvType, rvLength, rvYear, backgroundCheck, desiredStartDate, dateAdded, notes, status',
   reservations: '$$id, name, phone, email, rvType, numInParty, checkInDate, checkOutDate, notes',
-  maintenanceRequests: '++id, spaceId, parkArea, requestDate, description, status, completedDate, pettyCashTransactions, imgIds, notes',
+  maintenanceRequests: 'id, spaceId, parkArea, requestDate, description, status, completedDate, pettyCashTransactions, imgIds, notes',
 }).upgrade(tx => {
   return tx.table('spaces').toCollection().modify(s => {
     if (s.storageRate === undefined) s.storageRate = null;

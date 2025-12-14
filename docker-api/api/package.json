@@ -1,0 +1,9 @@
+{
+  "name": "myrvpark-api",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "app.js",
+  "dependencies": {
+    "fastify": "^4.0.0"
+  }
+}

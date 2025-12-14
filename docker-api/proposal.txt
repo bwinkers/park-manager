@@ -1,0 +1,15 @@
+Create a docker compose and related directories and files to support the following:
+
+authelia using lldap, 
+KeyDB used for session storage in authelia instead of redis,
+simple esm fastify API 
+caddy as reverse proxy for authelia, lldap, and API
+
+store the respective config files etc in directories named authelia, caddy, lldap and api
+
+The root domain for the project is myrvpark.space
+Caddy should have the following reverse proxy configs
+reverse proxy lldap using ldap.myrvpark.space
+reverse proxy authelia using auth.myrvpark.space
+reverse proxy api using api.myrvpark.space
+

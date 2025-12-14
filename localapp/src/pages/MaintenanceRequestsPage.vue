@@ -438,6 +438,14 @@ function formatDate(value) {
   return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(date)
 }
 
+// UUID generator (RFC4122 v4)
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
+
 async function addRequest() {
   if (!form.requestDate || !form.description) {
     $q.notify({ type: 'warning', message: 'Request date and description are required', position: 'top' })
@@ -456,6 +464,7 @@ async function addRequest() {
     }
 
     const request = {
+      id: uuidv4(),
       spaceId: form.spaceId || '',
       parkArea: form.parkArea || '',
       parkService: form.parkService || '',

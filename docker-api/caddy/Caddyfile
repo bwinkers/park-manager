@@ -1,0 +1,16 @@
+# Caddyfile for myrvpark.space reverse proxy
+{
+  email admin@myrvpark.space
+}
+
+ldap.myrvpark.space {
+  reverse_proxy lldap:17170
+}
+
+auth.myrvpark.space {
+  reverse_proxy authelia:9091
+}
+
+api.myrvpark.space {
+  reverse_proxy api:3000
+}
